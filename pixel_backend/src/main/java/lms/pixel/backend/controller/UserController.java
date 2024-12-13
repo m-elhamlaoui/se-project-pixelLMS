@@ -3,7 +3,8 @@ package lms.pixel.backend.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import lms.pixel.backend.auth.TokenStore;
+import lms.pixel.backend.Exceptions.NotFoundException;
+import lms.pixel.backend.Exceptions.OperationNotAuthorizedException;
 import lms.pixel.backend.model.User;
 import lms.pixel.backend.repository.IUserRepository;
 import lms.pixel.backend.utils.PermissionChecker;
@@ -26,12 +27,10 @@ import java.util.List;
 public class UserController {
 
     private final IUserRepository userRepository;
-    private final TokenStore tokenStore;
     private final PermissionChecker permissionChecker;
 
-    public UserController(IUserRepository userRepository, TokenStore tokenStore, PermissionChecker permissionChecker) {
+    public UserController(IUserRepository userRepository, PermissionChecker permissionChecker) {
         this.userRepository = userRepository;
-        this.tokenStore = tokenStore;
         this.permissionChecker = permissionChecker;
     }
 
@@ -41,11 +40,11 @@ public class UserController {
     }
 
     @PostMapping  
-    public ResponseEntity<String> createUser(@RequestBody User user, @RequestHeader("Authorization") String token, @RequestHeader("Password") String password) {
-        int userid = tokenStore.getUseridByToken(token);
+    public ResponseEntity<String> createUser(@RequestBody User user, @RequestHeader("Authorization") String token, @RequestHeader("Password") String password) throws OperationNotAuthorizedException {
+        int userid = permissionChecker.getUseridByToken(token);;
         
         if (!permissionChecker.canCreateUsers(userid, user.getRole())) {
-            return new ResponseEntity<>("You do not have permission to create a user", HttpStatus.FORBIDDEN);
+            throw new OperationNotAuthorizedException("You do not have permission to create this user", userid);
         }
 
         userRepository.createUser(user, password);
@@ -53,10 +52,11 @@ public class UserController {
     }
 
     @PutMapping("/{userid}")
-    public ResponseEntity<String> updateUser(@PathVariable int userid, @RequestBody User user, @RequestHeader("Authorization") String token, @RequestHeader("Password") String password) {
-        int loggedUserid = tokenStore.getUseridByToken(token);
+    public ResponseEntity<String> updateUser(@PathVariable int userid, @RequestBody User user, @RequestHeader("Authorization") String token, @RequestHeader("Password") String password) throws OperationNotAuthorizedException {
+        int loggedUserid = permissionChecker.getUseridByToken(token);
+
         if (!permissionChecker.canCreateUsers(loggedUserid, user.getRole())) {
-            return new ResponseEntity<>("You do not have permission to update this user", HttpStatus.FORBIDDEN);
+            throw new OperationNotAuthorizedException("You do not have permission to update this user", loggedUserid);
         }
 
         userRepository.updateUser(userid, user, password);
@@ -64,18 +64,29 @@ public class UserController {
     }
 
     @GetMapping("getbyemail/{useremail}")
-    public User getbyemail(@PathVariable String useremail) {
-        return userRepository.getUserByEmail(useremail);
+    public User getbyemail(@PathVariable String useremail) throws NotFoundException {
+        User u = userRepository.getUserByEmail(useremail);
+        if (u == null) {
+            throw new NotFoundException();
+        }
+        return u;
     }
 
     @GetMapping("/{userid}")
-    public User getUser(@PathVariable int userid) {
-        return userRepository.getByuserId(userid);
+    public User getUser(@PathVariable int userid) throws NotFoundException {
+        User u = userRepository.getByuserId(userid);
+        if (u == null) {
+            throw new NotFoundException();
+        }
+        return u;
     }
 
     @GetMapping("/current")
-    public User getLoggedUser(@RequestHeader("Authorization") String token) {
-        int userid = tokenStore.getUseridByToken(token);
+    public User getLoggedUser(@RequestHeader("Authorization") String token) throws NotFoundException {
+        int userid = permissionChecker.getUseridByToken(token);
+        if (userid == -1) {
+            throw new NotFoundException();
+        }
         return userRepository.getByuserId(userid);
     }
 

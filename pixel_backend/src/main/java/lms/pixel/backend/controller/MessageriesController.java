@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import lms.pixel.backend.auth.TokenStore;
+import lms.pixel.backend.Exceptions.NotFoundException;
+import lms.pixel.backend.Exceptions.OperationNotAuthorizedException;
 import lms.pixel.backend.model.Discussion;
 import lms.pixel.backend.model.Message;
 import lms.pixel.backend.repository.DiscussionRepository;
@@ -27,21 +28,19 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class MessageriesController {
 
     private final DiscussionRepository discRepository;
-    private final TokenStore tokenStore;
     private final PermissionChecker permissionChecker;
 
-    public MessageriesController(DiscussionRepository discRepository, TokenStore tokenStore, PermissionChecker permissionChecker) {
+    public MessageriesController(DiscussionRepository discRepository, PermissionChecker permissionChecker) {
         this.discRepository = discRepository;
-        this.tokenStore = tokenStore;
         this.permissionChecker = permissionChecker;
     }   
 
     @PostMapping("/message/{discussionid}")
-    public ResponseEntity<String> createMessage(@PathVariable int discussionid, @RequestBody Message message, @RequestHeader("Authorization") String token){
-        int userid = tokenStore.getUseridByToken(token);
+    public ResponseEntity<String> createMessage(@PathVariable int discussionid, @RequestBody Message message, @RequestHeader("Authorization") String token) throws OperationNotAuthorizedException {
+        int userid = permissionChecker.getUseridByToken(token);
 
         if(!permissionChecker.isParticipant(userid, discRepository.getDiscussionById(discussionid).getCourseid())){
-            return new ResponseEntity<>("You do not have permission to create a message in this discussion", HttpStatus.FORBIDDEN);
+            throw new OperationNotAuthorizedException("You do not have permission to create a message in this discussion", userid);
         }
 
         discRepository.createMessage(discussionid, userid, message.getContent());
@@ -54,8 +53,12 @@ public class MessageriesController {
     }
 
     @GetMapping("/{discussionid}")
-    public Discussion getDiscussionById(@PathVariable int discussionid) {
-        return discRepository.getDiscussionById(discussionid);
+    public Discussion getDiscussionById(@PathVariable int discussionid) throws NotFoundException {
+        Discussion disc = discRepository.getDiscussionById(discussionid);
+        if (disc == null) {
+            throw new NotFoundException();
+        }
+        return disc;
     }
 
     @GetMapping("/getbycourse/{courseid}") 
@@ -64,11 +67,11 @@ public class MessageriesController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createDiscussion(@RequestBody Discussion disc, @RequestHeader("Authorization") String token){
-        int userid = tokenStore.getUseridByToken(token);
+    public ResponseEntity<String> createDiscussion(@RequestBody Discussion disc, @RequestHeader("Authorization") String token) throws OperationNotAuthorizedException {
+        int userid = permissionChecker.getUseridByToken(token);
 
         if(!permissionChecker.isParticipant(userid, disc.getCourseid())){
-            return new ResponseEntity<>("You do not have permission to create a discussion in this course", HttpStatus.FORBIDDEN);
+            throw new OperationNotAuthorizedException("You do not have permission to create a discussion in this course", userid);
         }
 
         discRepository.createDiscussion(disc);
@@ -76,8 +79,8 @@ public class MessageriesController {
     }
 
     @PutMapping("/{discussionid}")
-    public ResponseEntity<String> updateDiscussion(@PathVariable int discussionid, @RequestBody Discussion disc, @RequestHeader("Authorization") String token){
-        int userid = tokenStore.getUseridByToken(token);
+    public ResponseEntity<String> updateDiscussion(@PathVariable int discussionid, @RequestBody Discussion disc, @RequestHeader("Authorization") String token) throws OperationNotAuthorizedException {
+        int userid = permissionChecker.getUseridByToken(token);
 
         if(!permissionChecker.isParticipant(userid, disc.getCourseid())){
             return new ResponseEntity<>("You do not have permission to update this discussion", HttpStatus.FORBIDDEN);
@@ -88,11 +91,11 @@ public class MessageriesController {
     }
 
     @DeleteMapping("/{discussionid}")
-    public ResponseEntity<String> deleteDiscussion(@PathVariable int discussionid, @RequestHeader("Authorization") String token){
-        int userid = tokenStore.getUseridByToken(token);
+    public ResponseEntity<String> deleteDiscussion(@PathVariable int discussionid, @RequestHeader("Authorization") String token) throws OperationNotAuthorizedException {
+        int userid = permissionChecker.getUseridByToken(token);
 
         if(!permissionChecker.isParticipant(userid, discRepository.getDiscussionById(discussionid).getCourseid())){
-            return new ResponseEntity<>("You do not have permission to delete this discussion", HttpStatus.FORBIDDEN);
+            throw new OperationNotAuthorizedException("You do not have permission to delete this discussion", userid);
         }
 
         discRepository.deleteDiscussion(discussionid);

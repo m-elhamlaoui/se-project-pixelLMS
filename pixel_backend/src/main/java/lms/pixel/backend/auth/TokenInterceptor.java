@@ -5,15 +5,16 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lms.pixel.backend.utils.PermissionChecker;
 
 
 @Component
 public class TokenInterceptor implements HandlerInterceptor {
 
-    private final TokenStore tokenStore;
+    private final PermissionChecker permChecker;
 
-    public TokenInterceptor(TokenStore tokenStore) {
-        this.tokenStore = tokenStore;
+    public TokenInterceptor(PermissionChecker permChecker) {
+        this.permChecker = permChecker;
     }
 
     @Override
@@ -22,10 +23,12 @@ public class TokenInterceptor implements HandlerInterceptor {
             return true;
         }
         String token = request.getHeader("Authorization");
-        if (token == null || tokenStore.getUseridByToken(token) == null) {
+        
+        if (!permChecker.isAuthorized(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return false;
         }
+        
         return true;
     }
 }

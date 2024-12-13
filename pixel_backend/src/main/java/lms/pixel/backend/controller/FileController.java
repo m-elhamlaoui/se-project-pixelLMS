@@ -8,10 +8,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import lms.pixel.backend.auth.TokenStore;
+import lms.pixel.backend.Exceptions.NotFoundException;
 import lms.pixel.backend.model.myFile;
 import lms.pixel.backend.repository.FileRepository;
 import lms.pixel.backend.utils.FileStorageConfig;
+import lms.pixel.backend.utils.PermissionChecker;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -26,7 +27,7 @@ import java.nio.file.Files;
 @RequestMapping("api/file")
 public class FileController {
     private final FileRepository fileRepository;
-    private final TokenStore tokenStore;
+    private final PermissionChecker permissionChecker;
     private final FileStorageConfig fileStorageConfig;
 
     private static final List<String> ALLOWED_MIME_TYPES = List.of(
@@ -41,9 +42,9 @@ public class FileController {
         "application/x-bzip2"
     );
 
-    public FileController(FileRepository fileRepository, TokenStore tokenStore, FileStorageConfig fileStorageConfig) {
+    public FileController(FileRepository fileRepository, PermissionChecker permissionChecker, FileStorageConfig fileStorageConfig) {
         this.fileRepository = fileRepository;
-        this.tokenStore = tokenStore;
+        this.permissionChecker = permissionChecker;
         this.fileStorageConfig = fileStorageConfig;
     }
 
@@ -54,7 +55,7 @@ public class FileController {
             @RequestParam("foreignKeyType") String foreignKeyType,
             @RequestHeader("Authorization") String token) {
 
-        int userId = tokenStore.getUseridByToken(token);
+        int userId = permissionChecker.getUseridByToken(token);
 
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("File is empty");
@@ -122,10 +123,11 @@ public class FileController {
     }
 
     @GetMapping("/download/{fileId}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable("fileId") int fileId) {
+    public ResponseEntity<Resource> downloadFile(@PathVariable("fileId") int fileId) throws NotFoundException {
         myFile file = fileRepository.getFileById(fileId);
+
         if (file == null) {
-            return ResponseEntity.notFound().build();
+            throw new NotFoundException();
         }
         File fileToDownload = new File(file.getPath());
         if (!fileToDownload.exists()) {
