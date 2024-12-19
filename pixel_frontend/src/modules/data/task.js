@@ -17,9 +17,9 @@ async function getTaskById(taskId) {
     return task;
 }
 
-// Fetches all tasks associated with a specific project
-async function getTasksByProject(projectId) {
-    const response = await fetch(v1 + 'api/task/project/' + projectId, {
+// Fetches all tasks associated with a specific course
+async function getTasksByCourse(courseId) {
+    const response = await fetch(v1 + 'api/task/course/' + courseId, {
         method: 'GET',
         headers: {
             'Authorization': localStorage.getItem('serversecuritytoken')
@@ -104,4 +104,4 @@ async function updateTaskAssignment(taskId, listofusers) {
     return true;
 }
 
-export { getTaskById, getTasksByProject, getTasksByUser, deleteTask, insertOrUpdateTask, updateTaskAssignment };
+export { getTaskById, getTasksByCourse, getTasksByUser, deleteTask, insertOrUpdateTask, updateTaskAssignment };

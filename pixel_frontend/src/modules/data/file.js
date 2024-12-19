@@ -84,9 +84,9 @@ async function getFileById(fileId) {
     return await response.json();
 }
 
-// Fetch files associated with a project
-async function getFilesByProject(projectId) {
-    const response = await fetch(v1 + 'api/file/project/' + projectId, {
+// Fetch files associated with a course
+async function getFilesByCourse(courseId) {
+    const response = await fetch(v1 + 'api/file/course/' + courseId, {
         method: 'GET',
         headers: {
             'Authorization': localStorage.getItem('serversecuritytoken')
@@ -95,7 +95,7 @@ async function getFilesByProject(projectId) {
     await handleUnauthorized(response);
 
     if (!response.ok) {
-        throw new Error(`Fetch files by project failed: ${response.statusText}`);
+        throw new Error(`Fetch files by course failed: ${response.statusText}`);
     }
     return await response.json();
 }
@@ -168,7 +168,7 @@ export {
     uploadFile,
     downloadFile,
     getFileById,
-    getFilesByProject,
+    getFilesByCourse,
     getFilesByTask,
     getFilesByMessage,
     getFilesByProfile,

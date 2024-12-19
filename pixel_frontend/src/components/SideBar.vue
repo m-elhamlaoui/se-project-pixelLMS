@@ -11,22 +11,20 @@
           <div style="font-size: xx-small; text-align: center;">
             <v-img max-height="40px" src="@/assets/logo.png"/>
             <span v-if="!isMobile">
-              Ministère de l'Agriculture, de la Pêche Maritime,
-              du Développement Rural et des Eaux et Forêts 
             </span>
           </div>
         </v-list-item-content>
       </v-list-item>
       
       <v-list-item         
-          @click="Linkclicked('/project', true)"
+          @click="Linkclicked('/course', true)"
           class="specialbackground headline"
-          v-if="!isMobile && projectselected"
+          v-if="!isMobile && courseselected"
       >
-        <strong>Projet:</strong> {{ tr_projectName }}
+        <strong>Projet:</strong> {{ tr_courseName }}
       </v-list-item>
 
-      <v-divider v-if="!isMobile && !projectselected"></v-divider>
+      <v-divider v-if="!isMobile && !courseselected"></v-divider>
 
       <v-list-item
         @click="Linkclicked('/profile/0', false)"
@@ -35,7 +33,7 @@
       >
         <v-list-item-content>
           <v-icon>mdi-account</v-icon>
-          <span v-if="!isMobile" class="item-title">Profil</span>
+          <span v-if="!isMobile" class="item-title">Profile</span>
         </v-list-item-content>
       </v-list-item>
 
@@ -46,7 +44,7 @@
       >
         <v-list-item-content>
           <v-icon>mdi-view-dashboard</v-icon>
-          <span v-if="!isMobile" class="item-title">Tableau de bord</span>
+          <span v-if="!isMobile" class="item-title">DashBoard</span>
         </v-list-item-content>
       </v-list-item>
 
@@ -57,7 +55,7 @@
       >
         <v-list-item-content>
           <v-icon>mdi-calendar</v-icon>
-          <span v-if="!isMobile" class="item-title">Calendrier</span>
+          <span v-if="!isMobile" class="item-title">Calendar</span>
         </v-list-item-content>
       </v-list-item>
 
@@ -69,14 +67,14 @@
       >
         <v-list-item-content>
           <v-icon>mdi-server-security</v-icon>
-          <span v-if="!isMobile" class="item-title">Interface admin </span>
+          <span v-if="!isMobile" class="item-title">Admin Interface </span>
         </v-list-item-content>
       </v-list-item>
 
       <v-list-item
         link
         class="list-item"
-        v-if="projectselected && !isMobile"
+        v-if="courseselected && !isMobile"
       >
         <v-menu location="end" dark>
           <template v-slot:activator="{ props }">
@@ -96,7 +94,7 @@
                 </router-link>
             </div>
             <div v-else class="dropdown-item">
-              <v-list-item-title>Aucune discussion</v-list-item-title>
+              <v-list-item-title>No discussion</v-list-item-title>
             </div>
           </div>
 
@@ -107,11 +105,11 @@
         @click="Linkclicked('/tasks', true)"
         link
         class="list-item"
-        v-if="projectselected"
+        v-if="courseselected"
       >
         <v-list-item-content>
           <v-icon>mdi-checkbox-marked-outline</v-icon>
-          <span v-if="!isMobile" class="item-title">Tâches</span>
+          <span v-if="!isMobile" class="item-title">tasks</span>
         </v-list-item-content>
       </v-list-item>
 
@@ -128,20 +126,20 @@
 
 <script>
 import { getUser, isLogged } from '@/modules/auth';
-import { getProjectDiscussions } from '@/modules/data/discussion';
-import { getProjectById } from '@/modules/data/project';
+import { getCourseDiscussions } from '@/modules/data/discussion';
+import { getCourseById } from '@/modules/data/course';
 
 export default {
 data() {
 
 return {
   drawerWidth: 300, 
-  projectName: 'Selectionner un projet',
+  courseName: 'Select a course',
   discussions: [],
-  logout: { title: 'Se déconnecter', icon: 'mdi-logout', route: '/logout' },
+  logout: { title: 'Log out', icon: 'mdi-logout', route: '/logout' },
   isMobile: false,
   
-  projectselected: false,
+  courseselected: false,
   isadmin: false,
 };
 },
@@ -153,10 +151,10 @@ beforeDestroy() {
   window.removeEventListener('resize', this.updateLayout);
 },
 computed: {
-tr_projectName(){
-  return this.projectName.length > 20
-    ? this.projectName.substring(0, 20) + '...'
-    : this.projectName;
+tr_courseName(){
+  return this.courseName.length > 20
+    ? this.courseName.substring(0, 20) + '...'
+    : this.courseName;
 }
 },
 methods: {
@@ -171,25 +169,25 @@ methods: {
     }
     this.isMobile = width < 500;
   },
-  Linkclicked(path, injectproject){
-    if (injectproject){
-      this.$router.push(path + "/" + localStorage.getItem("project"));
+  Linkclicked(path, injectcourse){
+    if (injectcourse){
+      this.$router.push(path + "/" + localStorage.getItem("course"));
       return;
     }
-    localStorage.removeItem("project");
+    localStorage.removeItem("course");
     this.$router.push(path);
   },
-  async updateProject() {
-    const currentValue = localStorage.getItem("project");
+  async updateCourse() {
+    const currentValue = localStorage.getItem("course");
     if (currentValue == null) {
-      this.projectselected = false;
-      this.projectName = 'Sélectionner un projet';
+      this.courseselected = false;
+      this.courseName = 'Select a course';
       this.discussions = [];
     } else {
-      const project = await getProjectById(currentValue);
-      this.projectName = project.title;
-      this.projectselected = true;
-      this.discussions = await getProjectDiscussions(currentValue);
+      const course = await getCourseById(currentValue);
+      this.courseName = course.title;
+      this.courseselected = true;
+      this.discussions = await getCourseDiscussions(currentValue);
     }
   }
 },
@@ -198,10 +196,10 @@ methods: {
       return;
     }
     const user = await getUser();
-    this.isadmin = user.role.toLowerCase() !== "stagiaire";
+    this.isadmin = user.role.toLowerCase() !== "student";
 
     setInterval(() => {
-      this.updateProject();
+      this.updateCourse();
     }, 100);
   }
 };
@@ -210,7 +208,7 @@ methods: {
 <style scoped>
 
 .v-navigation-drawer {
-background-image: url('@/assets/background.jpg'); 
+background-image: url('@/assets/background.png'); 
 color: #fff;
 transition: width 0.3s ease;
 }

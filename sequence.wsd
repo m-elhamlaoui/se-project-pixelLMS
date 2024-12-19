@@ -1,0 +1,47 @@
+@startuml PixelLMS Sequence Diagram
+
+actor Student
+actor Student
+actor Teacher
+actor Admin
+participant "LMS" as LMS
+database "Database" as DB
+
+Student -> LMS: Access LMS Platform
+Teacher -> LMS: Access LMS Platform
+Admin -> LMS: Access LMS Platform
+
+LMS -> Student: Display Login Form
+LMS -> Teacher: Display Login Form
+LMS -> Admin: Display Login Form
+
+Student -> LMS: Enter Credentials
+Teacher -> LMS: Enter Credentials
+Admin -> LMS: Enter Credentials
+
+LMS -> DB: Validate Credentials
+DB --> LMS: Return User Data
+
+LMS --> Student: Authentication Successful
+LMS --> Teacher: Authentication Successful
+LMS --> Admin: Authentication Successful
+
+Student -> LMS: Access Course Material
+LMS -> DB: Fetch Course Data
+DB --> LMS: Return Course Content
+LMS --> Student: Display Course Material
+
+Teacher -> LMS: Upload Course Material
+LMS -> DB: Store Course Data
+DB --> LMS: Confirmation
+LMS --> Teacher: Upload Successful
+
+Admin -> LMS: Manage User Accounts
+LMS -> DB: Update User Records
+DB --> LMS: Records Updated
+LMS --> Admin: Update Successful
+
+Student -> LMS: Attempt to Enroll in Course
+LMS -> DB: Update Enrollment Records
+DB --> LMS: Enrollment Updated
+LMS --> Student: Enrollment Confirmed

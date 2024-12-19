@@ -8,11 +8,11 @@
           <v-btn text @click="snackbar.show = false">Close</v-btn>
         </v-snackbar>
 
-        <v-card v-if="project.title" class="pa-5 elevation-2 rounded-lg">
+        <v-card v-if="course.title" class="pa-5 elevation-2 rounded-lg">
           <v-row>
             <v-col cols="12" md="6">
               <v-card-title class="headline mb-3">
-                {{ project.title }}
+                {{ course.title }}
               </v-card-title>
 
               <v-card-subtitle class="mb-2">
@@ -20,39 +20,33 @@
               </v-card-subtitle>
 
               <v-card-text class="mb-4">
-                {{ project.description }}
+                {{ course.description }}
               </v-card-text>
 
               <v-card-text class="mb-4">
                 <div>
-                  <strong>Date de début :</strong> {{ project.startdate }}
-                </div>
-                <div>
-                  <strong>Date de fin :</strong> {{ project.enddate }}
-                </div>
-                <div>
-                  <strong>Statut :</strong> {{ project.status }}
+                  <strong>Status :</strong> {{ course.status }}
                 </div>
               </v-card-text>
 
               <v-divider></v-divider>
 
               <v-card-subtitle class="mt-4">
-                <strong>Contact du superviseur :</strong>
+                <strong>Teacher contact :</strong>
               </v-card-subtitle>
 
               <v-card-text>
                 <div class="mb-2">
-                  <strong>Nom :</strong> {{ supervisor.name }}
+                  <strong>Name :</strong> {{ teacher.name }}
                 </div>
                 <div class="mb-2">
-                  <strong>Email :</strong> <a :href="'mailto:' + supervisor.email">{{ supervisor.email }}</a>
+                  <strong>Email :</strong> <a :href="'mailto:' + teacher.email">{{ teacher.email }}</a>
                 </div>
                 <div class="mb-2">
-                  <strong>Téléphone :</strong> <a :href="'tel:' + supervisor.phonenumber">{{ supervisor.phonenumber }}</a>
+                  <strong>Phone number :</strong> <a :href="'tel:' + teacher.phonenumber">{{ teacher.phonenumber }}</a>
                 </div>
-                <v-btn :to="supervisor.profileLink" class="mt-4" color="primary" text>
-                  Voir le profil
+                <v-btn :to="teacher.profileLink" class="mt-4" color="primary" text>
+                  View profile
                 </v-btn>
               </v-card-text>
 
@@ -62,13 +56,13 @@
                 <v-hover v-slot:default="{ isHovering }">
                   <v-btn v-if="showButtons" @click="openDiscussionDialog" class="mx-0 my-2" :color="isHovering ? 'primary' : 'grey lighten-2'" outlined>
                     <v-icon left>mdi-comment-plus</v-icon>
-                    Commencer une discussion
+                    Start a discussion
                   </v-btn>
                 </v-hover>
                 <v-hover v-slot:default="{ isHovering }">
                   <v-btn v-if="showButtons" @click="openCalendarDialog" class="mx-0 my-2" :color="isHovering ? 'primary' : 'grey lighten-2'" outlined>
                     <v-icon left>mdi-calendar-plus</v-icon>
-                    Ajouter un événement
+                    Add an event
                   </v-btn>
                 </v-hover>
               </v-card-actions>
@@ -76,7 +70,7 @@
 
             <v-col cols="12" md="6">
               <v-card-subtitle class="mt-4">
-                <strong>Personnes engagées :</strong>
+                <strong>Engaged people :</strong>
               </v-card-subtitle>
 
               <v-card-text>
@@ -98,12 +92,12 @@
           </v-row>
         </v-card>
 
-        <v-card v-if="!project.title" class="pa-5 elevation-2 rounded-lg">
+        <v-card v-if="!course.title" class="pa-5 elevation-2 rounded-lg">
           <v-card-title class="headline">
-            Chargement de la page
+            Page loading
           </v-card-title>
           <v-card-text>
-            Si la page reste comme ça, le projet demandé est introuvable. Veuillez vérifier l'URL et réessayer.
+            If the page remains like this, the requested project cannot be found. Please check the URL and try again
           </v-card-text>
         </v-card>
       </v-col>
@@ -122,13 +116,13 @@
 
 <script>
 import { getUser } from '@/modules/auth';
-import { getProjectById } from '@/modules/data/project';
-import { getUsersInProject } from '@/modules/data/user';
+import { getCourseById } from '@/modules/data/course';
+import { getUsersInCourse } from '@/modules/data/user';
 import { createEvent } from '@/modules/data/calendar';
 import { createDiscussion } from '@/modules/data/discussion';
 
-import CalendarCreate from '@/components/ProjectDialogs/CalendarCreate.vue';
-import DiscussionCreate from '@/components/ProjectDialogs/DiscussionCreate.vue';
+import CalendarCreate from '@/components/CourseDialogs/CalendarCreate.vue';
+import DiscussionCreate from '@/components/CourseDialogs/DiscussionCreate.vue';
 
 export default {
   components: {
@@ -137,8 +131,8 @@ export default {
   },
   data() {
     return {
-      project: {},
-      supervisor: {
+      course: {},
+      teacher: {
           name: 'Non attribué',
           email: 'Non disponible',
           phonenumber: 'Non disponible',
@@ -157,21 +151,21 @@ export default {
   },
   async created() {
     try {
-      const projectId = this.$route.params.id;
+      const courseId = this.$route.params.id;
 
-      const project = await getProjectById(projectId);
-      if (!project) {
-        throw new Error('Projet introuvable');
+      const course = await getCourseById(courseId);
+      if (!course) {
+        throw new Error('Course unfound');
       }
-      this.project = project;
+      this.course = course;
 
-      const supervisorID = project.userid;
+      const teacherID = course.userid;
       const loggeduser = await getUser();
-      if (supervisorID == loggeduser.userid){
+      if (teacherID == loggeduser.userid){
         this.showButtons = true;
       }
 
-      const people = await getUsersInProject(projectId);
+      const people = await getUsersInCourse(courseId);
 
       const exist = people.find(person => person.userid === loggeduser.userid);
       if (!exist){
@@ -179,14 +173,14 @@ export default {
         return
       }
 
-      const supervisor = people.find(person => person.userid === supervisorID);
+      const teacher = people.find(person => person.userid === teacherID);
       
-      if (supervisor) {
-        this.supervisor = {
-          name: supervisor.name,
-          email: supervisor.email,
-          phonenumber: supervisor.phonenumber,
-          profileLink: `/profile/${supervisor.userid}`,
+      if (teacher) {
+        this.teacher = {
+          name: teacher.name,
+          email: teacher.email,
+          phonenumber: teacher.phonenumber,
+          profileLink: `/profile/${teacher.userid}`,
         };
       }
       
@@ -196,11 +190,11 @@ export default {
         profileLink: `/profile/${person.userid}`,
       }));
       
-      localStorage.setItem('project', projectId);
+      localStorage.setItem('course', courseId);
 
     } catch (error) {
-      console.error('Erreur lors de la récupération des données :', error);
-      this.showSnackbar('Impossible de charger les données du projet. Veuillez réessayer plus tard.');
+      console.error('Error while retrieving the data:', error);
+      this.showSnackbar('Unable to load the course data. Please try again later.');
     }
   },
   methods: {
@@ -215,23 +209,23 @@ export default {
       this.calendarDialog = true;
     },
     async createEvent(event) {
-      event.projectid = this.project.projectid;
+      event.courseid = this.course.courseid;
       try{
         await createEvent(event);
         window.location.reload();
       } catch (error) {
-        console.error('Erreur lors de la création de l\'événement :', error);
-        this.showSnackbar('Impossible de créer l\'événement. Veuillez réessayer plus tard.');
+        console.error('Error while creating the event', error);
+        this.showSnackbar('Unable to create the event. Please try again later.');
       }
     },
     async createDiscussion(discussion) {
-      discussion.projectid = this.project.projectid;
+      discussion.courseid = this.course.courseid;
       try{
         await createDiscussion(discussion);
         window.location.reload();
       } catch (error) {
-        console.error('Erreur lors de la création de la discussion :', error);
-        this.showSnackbar('Impossible de créer la discussion. Veuillez réessayer plus tard.');
+        console.error('"Error while creating the discussion:', error);
+        this.showSnackbar('"Unable to create the discussion. Please try again later.');
       }
     },
     showSnackbar(message) {

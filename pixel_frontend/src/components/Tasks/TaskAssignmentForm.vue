@@ -9,17 +9,17 @@
         </v-list>
 
         <v-card-actions>
-            <v-btn text @click="close">Fermer</v-btn>
-            <v-btn color="primary" @click="submitTask">Soumettre</v-btn>
+            <v-btn text @click="close">Close</v-btn>
+            <v-btn color="primary" @click="submitTask">Submit</v-btn>
         </v-card-actions>
     </v-card>
 </template>
 
 <script>
-import { getUsersInTask, getUsersInProject } from '@/modules/data/user';
+import { getUsersInTask, getUsersInCourse } from '@/modules/data/user';
 
 export default {
-    props: ['currentTask', 'projectID'],
+    props: ['currentTask', 'courseID'],
     data() {
         return {
             users: [],
@@ -39,7 +39,7 @@ export default {
     },
     async created(){
         if (this.currentTask) {
-            const allUsers = await getUsersInProject(this.currentTask.projectid);
+            const allUsers = await getUsersInCourse(this.currentTask.courseid);
             const usersInTasks = await getUsersInTask(this.currentTask.taskid);
 
             this.users = allUsers.map(user => {

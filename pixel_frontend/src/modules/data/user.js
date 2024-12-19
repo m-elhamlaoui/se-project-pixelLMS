@@ -16,8 +16,8 @@ async function getUserbyId(userid){
     return user;
 }
 
-async function getUsersInProject(projectid){
-    const response = await fetch(v1 + 'api/user/workson/' + projectid, {
+async function getUsersInCourse(courseid){
+    const response = await fetch(v1 + 'api/user/workson/' + courseid, {
         method: 'GET',
         headers: {
             'Authorization': localStorage.getItem('serversecuritytoken')
@@ -123,4 +123,4 @@ async function getUserByEmail(email) {
     return user;
 }
 
-export {getUserByEmail, getAllUsers, createUser, updateUser, getUserbyId, getUsersInProject, getUsersInTask};
+export {getUserByEmail, getAllUsers, createUser, updateUser, getUserbyId, getUsersInCourse, getUsersInTask};

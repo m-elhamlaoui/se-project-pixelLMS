@@ -1,7 +1,7 @@
 <template>
     <v-card>
     <v-card-title>
-        <span class="headline">{{Action}} une Tâche</span>
+        <span class="headline">{{Action}} Task</span>
     </v-card-title>
     
     <v-card-subtitle>
@@ -9,7 +9,7 @@
         <v-text-field
             v-model="task.title"
             :rules="titleRules"
-            label="Titre"
+            label="Title"
             required
         ></v-text-field>
         <v-textarea
@@ -21,7 +21,7 @@
         ></v-textarea>
         <v-text-field
             v-model="task.duedate"
-            label="Date d'échéance"
+            label="Deadline"
             type="date"
             :min="maxDate"
             :rules="dueDateRules"
@@ -38,12 +38,12 @@
     </v-card-subtitle>
     <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn text @click="close">Annuler</v-btn>
+        <v-btn text @click="close">Cancel</v-btn>
         <v-btn
         color="primary"
         @click="submit"
         :disabled="!valid"
-        >Soumettre</v-btn>
+        >Submit</v-btn>
     </v-card-actions>
     </v-card>
   </template>
@@ -51,25 +51,24 @@
   <script>
 
   export default {
-    props: ['optionalTaskDetails', 'projectID'],
+    props: ['optionalTaskDetails', 'courseID'],
     data() {
       return {
-        Action: 'Créer',
+        Action: 'Create',
         valid: false,
         menu: false,
         task: {
           title: '',
           description: '',
           duedate: '',
-          status: 'Non Commencée',
+          status: 'Not started',
           taskid: -1,
-          projectid: this.projectID
+          courseid: this.courseID
         },
-        titleRules: [(v) => !!v || 'Le titre est requis'],
-        descriptionRules: [(v) => !!v || 'La description est requise'],
-        dueDateRules: [(v) => !!v || 'La date d\'échéance est requise'],
-        statusOptions: ['Non Commencée', 'En Cours', 'Terminée'],
-        maxDate: new Date().toISOString().substr(0, 10) // Définit la date max au jour actuel
+        titleRules: [(v) => !!v || 'Required title'],
+        descriptionRules: [(v) => !!v || 'Required description'],
+        dueDateRules: [(v) => !!v || 'Required deadline'],
+        maxDate: new Date().toISOString().substr(0, 10) 
       };
     },
     methods: {
@@ -90,7 +89,7 @@
         this.task.duedate = this.optionalTaskDetails.duedate;
         this.task.status = this.optionalTaskDetails.status;
         this.task.taskid = this.optionalTaskDetails.taskid;
-        this.Action = "Mettre à jour"
+        this.Action = "Update"
       }
     }
   };

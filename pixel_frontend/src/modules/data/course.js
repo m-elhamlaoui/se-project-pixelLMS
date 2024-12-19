@@ -1,7 +1,7 @@
 import {v1, handleUnauthorized} from '../apiUtils';
 
-async function fetchEngagedProjects(userid) {
-    const response = await fetch(v1 + 'api/project/workedby/' + userid, {
+async function fetchEngagedCourses(userid) {
+    const response = await fetch(v1 + 'api/course/workedby/' + userid, {
         method: 'GET',
         headers: {
             'Authorization': localStorage.getItem('serversecuritytoken')
@@ -12,12 +12,12 @@ async function fetchEngagedProjects(userid) {
     if (!response.ok) {
         throw new Error('Network response was not ok: ' + response.statusText);
     }
-    const projects = await response.json();
-    return projects;
+    const courses = await response.json();
+    return courses;
 }
 
-async function fetchSuperviseProjects(userid) {
-    const response = await fetch(v1 + 'api/project/supervisedby/' + userid, {
+async function fetchSuperviseCourses(userid) {
+    const response = await fetch(v1 + 'api/course/supervisedby/' + userid, {
         method: 'GET',
         headers: {
             'Authorization': localStorage.getItem('serversecuritytoken')
@@ -28,12 +28,12 @@ async function fetchSuperviseProjects(userid) {
     if (!response.ok) {
         throw new Error('Network response was not ok: ' + response.statusText);
     }
-    const projects = await response.json();
-    return projects;
+    const courses = await response.json();
+    return courses;
 }
 
-async function getProjectById(projectId) {
-    const response = await fetch(v1 + 'api/project/' + projectId, {
+async function getCourseById(courseId) {
+    const response = await fetch(v1 + 'api/course/' + courseId, {
         method: 'GET',
         headers: {
             'Authorization': localStorage.getItem('serversecuritytoken')
@@ -44,18 +44,18 @@ async function getProjectById(projectId) {
     if (!response.ok) {
         throw new Error('Network response was not ok: ' + response.statusText);
     }
-    const project = await response.json();
-    return project;
+    const course = await response.json();
+    return course;
 }
 
-async function insertProject(project) {
-    const response = await fetch(v1 + 'api/project', {
+async function insertCourse(course) {
+    const response = await fetch(v1 + 'api/course', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': localStorage.getItem('serversecuritytoken')
         },
-        body: JSON.stringify(project)
+        body: JSON.stringify(course)
     });
     await handleUnauthorized(response);
 
@@ -65,14 +65,14 @@ async function insertProject(project) {
     return true;
 }
 
-async function updateProject(project) {
-    const response = await fetch(v1 + 'api/project/' + project.projectid, {
+async function updateCourse(course) {
+    const response = await fetch(v1 + 'api/course/' + course.courseid, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': localStorage.getItem('serversecuritytoken')
         },
-        body: JSON.stringify(project)
+        body: JSON.stringify(course)
     });
     await handleUnauthorized(response);
 
@@ -82,8 +82,8 @@ async function updateProject(project) {
     return true;
 }
 
-async function getAllProjects() {
-    const response = await fetch(v1 + 'api/project', {
+async function getAllCourses() {
+    const response = await fetch(v1 + 'api/course', {
         method: 'GET',
         headers: {
             'Authorization': localStorage.getItem('serversecuritytoken')
@@ -94,12 +94,12 @@ async function getAllProjects() {
     if (!response.ok) {
         throw new Error('Network response was not ok: ' + response.statusText);
     }
-    const projects = await response.json();
-    return projects;
+    const courses = await response.json();
+    return courses;
 }
 
-async function updateProjectAssignment(projectid, listofusers) {
-    const response = await fetch(v1 + 'api/project/assign/' + projectid, {
+async function updateCourseAssignment(courseid, listofusers) {
+    const response = await fetch(v1 + 'api/course/assign/' + courseid, {
         method: 'PUT',
         headers: {
             'Authorization': localStorage.getItem('serversecuritytoken'),
@@ -117,4 +117,4 @@ async function updateProjectAssignment(projectid, listofusers) {
     return true;
 }
 
-export {updateProjectAssignment, getAllProjects, fetchEngagedProjects, fetchSuperviseProjects, getProjectById, insertProject, updateProject};
+export {updateCourseAssignment, getAllCourses, fetchEngagedCourses, fetchSuperviseCourses, getCourseById, insertCourse, updateCourse};

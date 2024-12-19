@@ -29,7 +29,7 @@
                   <v-list-item>
                   <v-list-item-content>
                       <v-list-item-title>{{ message.content }}</v-list-item-title>
-                      <v-list-item-subtitle>Par <strong>{{ message.username }}</strong> à {{ formatdate(message.timestamp) }}</v-list-item-subtitle>
+                      <v-list-item-subtitle>By <strong>{{ message.username }}</strong> à {{ formatdate(message.timestamp) }}</v-list-item-subtitle>
                   </v-list-item-content>
                   </v-list-item>
               </v-card>   
@@ -47,11 +47,11 @@
   
       <v-dialog v-model="deletedialog" max-width="500px">
       <v-card>
-          <v-card-title>Supprimer la discussion</v-card-title>
-          <v-card-text>Êtes-vous sûr de vouloir supprimer cette discussion ?</v-card-text>
+          <v-card-title>Delete discussion</v-card-title>
+          <v-card-text>Are you sure you want to delete this discussion?</v-card-text>
           <v-card-actions>
-          <v-btn @click="closeDialog">Annuler</v-btn>
-          <v-btn @click="mydeleteDiscussion" color="red">Supprimer</v-btn>
+          <v-btn @click="closeDialog">Cancel</v-btn>
+          <v-btn @click="mydeleteDiscussion" color="red">Remove</v-btn>
           </v-card-actions>
       </v-card>
       </v-dialog>
@@ -62,14 +62,14 @@
   
       <v-snackbar v-model="snackbar.show" :color="snackbar.color" timeout="3000">
       {{ snackbar.text }}
-      <v-btn text @click="snackbar.show = false">Fermer</v-btn>
+      <v-btn text @click="snackbar.show = false">Close</v-btn>
       </v-snackbar>
   </v-container>
   </template>
   
   <script>
   import { deleteDiscussion, getDiscussionById, updateDiscussion, fetchMessages, sendMessage as apiSendMessage } from '@/modules/data/discussion';
-  import DiscussionCreate from '@/components/ProjectDialogs/DiscussionCreate.vue';
+  import DiscussionCreate from '@/components/CourseDialogs/DiscussionCreate.vue';
   
   export default {
     components: {
@@ -77,8 +77,8 @@
     },
     data() {
       return {
-        title: 'Titre de la discussion',
-        description: 'Ceci est la description de la discussion.',
+        title: 'Discussion title',
+        description: 'Description :',
         message: '',
         messages: [],
         deletedialog: false,
@@ -108,16 +108,16 @@
           await updateDiscussion(disc);
           window.location.reload();
         } catch (err) {
-          this.snackbar.text = 'Échec de la mise à jour de la discussion';
+          this.snackbar.text = 'Failed to update the discussion';
           this.snackbar.show = true;
         }
       },
       async mydeleteDiscussion() {
         try {
           await deleteDiscussion(this.currentdiscussion.discussionid);
-          this.$router.push('/project/'+this.currentdiscussion.projectid);
+          this.$router.push('/course/'+this.currentdiscussion.courseid);
         } catch (err) {
-          this.snackbar.text = 'Échec de la suppression de la discussion';
+          this.snackbar.text = 'Failed to delete the discussion';
           this.snackbar.show = true;
         }
       },
@@ -127,7 +127,7 @@
           this.message = '';
           this.fetchMessages();
         } catch (err) {
-          this.snackbar.text = 'Échec de l\'envoi du message';
+          this.snackbar.text = 'Failed to send the message';
           this.snackbar.show = true;
         }
       },
@@ -136,7 +136,7 @@
           const messages = await fetchMessages(this.currentdiscussion.discussionid);
           this.messages = messages.sort((b, a) => new Date(b.timestamp) - new Date(a.timestamp));
         } catch (err) {
-          this.snackbar.text = 'Échec de la récupération des messages';
+          this.snackbar.text = 'Failed to retrieve the messages.';
           this.snackbar.show = true;
         }
       },

@@ -11,15 +11,15 @@
     </v-card-title>
 
     <v-card-subtitle>
-      Encadrant : {{ data.supervisor }}
+      Teacher : {{ data.teacher }}
     </v-card-subtitle>
 
     <v-card-actions>
       <v-btn v-if="background"
         class="custom-button"
-        @click="openProject"
+        @click="openCourse"
       >
-        Sélectionner
+        Select
       </v-btn>
 
       <v-spacer></v-spacer>
@@ -32,15 +32,6 @@
 
     <v-expand-transition>
       <v-card-text v-show="show">
-        <div>
-          <strong>Statut :</strong> {{ data.status }}
-        </div>
-        <div>
-          <strong>Date de début :</strong> {{ data.startDate }}
-        </div>
-        <div>
-          <strong>Date de fin :</strong> {{ data.endDate }}
-        </div>
         <div class="mt-2">
           <strong>Description :</strong> {{ truncatedDescription }}
         </div>
@@ -66,8 +57,8 @@ export default {
     },
   },
   methods: {
-    openProject() {
-      this.$router.push("/project/" + this.data.projectid);
+    openCourse() {
+      this.$router.push("/course/" + this.data.courseid);
     },
     getDarkerColor() {
       const randomColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
@@ -103,12 +94,12 @@ export default {
 }
 
 .custom-button {
-  background-color: #1976D2; /* Couleur bleue */
+  background-color: rgb(204, 122, 22); 
   color: white;
-  text-transform: none; /* Empêche le texte en majuscules */
+  text-transform: none; 
 }
 
 .custom-button:hover {
-  background-color: #1565C0; /* Bleu plus foncé au survol */
+  background-color: #ffffff; 
 }
 </style>

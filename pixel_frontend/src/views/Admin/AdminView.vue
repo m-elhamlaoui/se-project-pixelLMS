@@ -3,7 +3,7 @@
     <v-container>
       <!-- Header with User Role -->
       <h2 class="user-role">
-        Vous êtes un(e) {{ userRole }}
+        You are a {{ userRole }}
       </h2>
 
       <v-divider class="mb-10"></v-divider>
@@ -11,8 +11,8 @@
       <!-- Vuetify Tabs -->
       <v-card>
         <v-tabs v-model="tab" align-tabs="start" color="primary">
-          <v-tab :value="1">Utilisateurs</v-tab>
-          <v-tab :value="2">Projets</v-tab>
+          <v-tab :value="1">Users</v-tab>
+          <v-tab :value="2">Courses</v-tab>
         </v-tabs>
 
         <v-tabs-window v-model="tab">
@@ -21,7 +21,7 @@
           </v-tabs-window-item>
 
           <v-tabs-window-item :value="2">
-            <ProjectsListing :projects="projects" />
+            <CoursesListing :courses="courses" />
           </v-tabs-window-item>
         </v-tabs-window>
       </v-card>
@@ -29,7 +29,7 @@
       <!-- Error Message Display -->
       <v-snackbar v-model="errorSnackbar" color="red">
         {{ errorMessage }}
-        <v-btn color="white" text @click="errorSnackbar = false">Fermer</v-btn>
+        <v-btn color="white" text @click="errorSnackbar = false">Close</v-btn>
       </v-snackbar>
     </v-container>
   </v-app>
@@ -37,22 +37,22 @@
 
 <script>
 import { getUser } from '@/modules/auth';
-import { getUsersInProject, getAllUsers } from '@/modules/data/user';
-import { fetchSuperviseProjects, getAllProjects } from '@/modules/data/project';
+import { getUsersInCourse, getAllUsers } from '@/modules/data/user';
+import { fetchSuperviseCourses, getAllCourses } from '@/modules/data/course';
 
 import UsersListing from './UsersListing.vue';
-import ProjectsListing from './ProjectsListing.vue';
+import CoursesListing from './CoursesListing.vue';
 
 export default {
   components: {
-    UsersListing, ProjectsListing
+    UsersListing, CoursesListing
   },
   data() {
     return {
-      userRole: 'supervisor', 
+      userRole: 'teacher', 
       tab: 1,
       users: [],
-      projects: [],
+      courses: [],
       errorSnackbar: false,
       errorMessage: ''
     };
@@ -63,20 +63,20 @@ export default {
       this.userRole = user.role;
       
 
-      if (user.role.toLowerCase() === 'superadmin') {
-        this.projects = await getAllProjects();
+      if (user.role.toLowerCase() === 'admin') {
+        this.courses = await getAllCourses();
         this.users = await getAllUsers();
       } else {
-        this.projects = await fetchSuperviseProjects(user.userid);
+        this.courses = await fetchSuperviseCourses(user.userid);
         const allUsers = [];
-        for (const project of this.projects) {
-          const usersInProject = await getUsersInProject(project.projectid);
-          allUsers.push(...usersInProject);
+        for (const course of this.courses) {
+          const usersInCourse = await getUsersInCourse(course.courseid);
+          allUsers.push(...usersInCourse);
         }
         this.users = Array.from(new Map(allUsers.map(user => [user.userid, user])).values());
       }
     } catch (error) {
-      this.errorMessage = 'Une erreur s\'est produite : ' + error.message;
+      this.errorMessage = 'Error : ' + error.message;
       this.errorSnackbar = true;
     }
   }

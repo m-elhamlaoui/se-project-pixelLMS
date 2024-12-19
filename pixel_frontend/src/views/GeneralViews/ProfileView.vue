@@ -13,45 +13,45 @@
         Email : {{ user.email }}
       </v-card-subtitle>
       <v-card-subtitle>
-        Téléphone : {{ user.phonenumber }}
+        Tel Number : {{ user.phonenumber }}
       </v-card-subtitle>
       <v-card-subtitle>
-        Rôle : {{ user.role }}
+        Role : {{ user.role }}
       </v-card-subtitle>
       <v-card-subtitle>
-        Date de création : {{ user.creationdate }}
+        Creation Date : {{ user.creationdate }}
       </v-card-subtitle>
     </v-card>
 
     <v-card>
         <v-tabs v-model="tab" align-tabs="start" color="primary">
-          <v-tab :value="1">Les projets sur lesquels il travaille</v-tab>
-          <v-tab v-if="supervisedProjects.length" :value="2">Les projets supervisés</v-tab>
-          <v-tab :value="3">Fichiers</v-tab>
+          <v-tab :value="1">Courses </v-tab>
+          <v-tab v-if="supervisedCourses.length" :value="2">Courses</v-tab>
+          <v-tab :value="3">Files</v-tab>
         </v-tabs>
 
         <v-tabs-window v-model="tab">
           <v-tabs-window-item :value="2" class="padding-10">
-            <v-list v-if="supervisedProjects && supervisedProjects.length">
-              <v-list-item v-for="project in supervisedProjects" :key="project.projectid" class="card-hover">
-                <v-list-item-title>{{ project.title }}</v-list-item-title>
-                <v-list-item-subtitle>{{ project.title }}</v-list-item-subtitle>
+            <v-list v-if="supervisedCourses && supervisedCourses.length">
+              <v-list-item v-for="course in supervisedCourses" :key="course.courseid" class="card-hover">
+                <v-list-item-title>{{ course.title }}</v-list-item-title>
+                <v-list-item-subtitle>{{ course.title }}</v-list-item-subtitle>
               </v-list-item>
             </v-list>
             <v-list class="ml-5" v-else>
-              <v-list-item>Aucun projet trouvé.</v-list-item>
+              <v-list-item>No course available.</v-list-item>
             </v-list>
           </v-tabs-window-item>
 
           <v-tabs-window-item :value="1">
-            <v-list v-if="engagedProjects && engagedProjects.length">
-              <v-list-item v-for="project in engagedProjects" :key="project.projectid" class="card-hover">
-                <v-list-item-title>{{ project.title }}</v-list-item-title>
-                <v-list-item-subtitle>{{ project.title }}</v-list-item-subtitle>
+            <v-list v-if="engagedCourses && engagedCourses.length">
+              <v-list-item v-for="course in engagedCourses" :key="course.courseid" class="card-hover">
+                <v-list-item-title>{{ course.title }}</v-list-item-title>
+                <v-list-item-subtitle>{{ course.title }}</v-list-item-subtitle>
               </v-list-item>
             </v-list>
             <v-list class="ml-5" v-else>
-              <v-list-item>Aucun projet trouvé.</v-list-item>
+              <v-list-item>No course available.</v-list-item>
             </v-list>
           </v-tabs-window-item>
 
@@ -73,7 +73,7 @@
               </v-list-item>
             </v-list>
             <v-list class="ml-5" v-else>
-              <v-list-item-content>Aucun fichier ajouté</v-list-item-content>
+              <v-list-item-content>No files found.</v-list-item-content>
             </v-list>
           </v-tabs-window-item>
 
@@ -86,7 +86,7 @@
 <script>
 import { getUserbyId } from '@/modules/data/user';
 import { downloadFile, getFilesByProfile } from '@/modules/data/file';
-import { fetchEngagedProjects, fetchSuperviseProjects } from '@/modules/data/project';
+import { fetchEngagedCourses, fetchSuperviseCourses } from '@/modules/data/course';
 import { getUser } from '@/modules/auth';
 import DashboardCard from '@/components/DashboardCard.vue';
 
@@ -97,8 +97,8 @@ export default {
   data() {
     return {
       user: {},
-      supervisedProjects: [],
-      engagedProjects: [],
+      supervisedCourses: [],
+      engagedCourses: [],
       userfiles: [],
       error: null,
 
@@ -116,7 +116,7 @@ export default {
         try {
             await downloadFile(fileId);
         } catch (error) {
-            this.showError('Échec du téléchargement du fichier: ' + error.message);
+            this.showError('Downloading error: ' + error.message);
         }
     },
   },
@@ -131,25 +131,25 @@ export default {
       }
 
       userId = this.user.userid;
-      const supervisedProjects = await fetchSuperviseProjects(userId);
-      const engagedProjects = await fetchEngagedProjects(userId);
-      for (let i = 0; i < supervisedProjects.length; i++) {
-        supervisedProjects[i].startDate = this.formatDate(supervisedProjects[i].startdate);
-        supervisedProjects[i].endDate = this.formatDate(supervisedProjects[i].enddate);
+      const supervisedCourses = await fetchSuperviseCourses(userId);
+      const engagedCourses = await fetchEngagedCourses(userId);
+      for (let i = 0; i < supervisedCourses.length; i++) {
+        supervisedCourses[i].startDate = this.formatDate(supervisedCourses[i].startdate);
+        supervisedCourses[i].endDate = this.formatDate(supervisedCourses[i].enddate);
       }
-      for (let i = 0; i < engagedProjects.length; i++) {
-        engagedProjects[i].startDate = this.formatDate(engagedProjects[i].startdate);
-        engagedProjects[i].endDate = this.formatDate(engagedProjects[i].enddate);
+      for (let i = 0; i < engagedCourses.length; i++) {
+        engagedCourses[i].startDate = this.formatDate(engagedCourses[i].startdate);
+        engagedCourses[i].endDate = this.formatDate(engagedCourses[i].enddate);
       }
 
-      const supervisedProjectIds = new Set(supervisedProjects.map(p => p.projectid));
-      this.supervisedProjects = supervisedProjects;
-      this.engagedProjects = engagedProjects.filter(project => !supervisedProjectIds.has(project.projectid));
+      const supervisedCourseIds = new Set(supervisedCourses.map(p => p.courseid));
+      this.supervisedCourses = supervisedCourses;
+      this.engagedCourses = engagedCourses.filter(course => !supervisedCourseIds.has(course.courseid));
 
       this.userfiles = await getFilesByProfile(userId);
     } catch (error) {
-      console.error('Erreur lors de la récupération des données :', error);
-      this.error = 'Échec du chargement des données. Veuillez réessayer plus tard.';
+      console.error('Error while retrieving data', error);
+      this.error = 'Failed to load data. Please try again later.';
     }
   },
   watch: {

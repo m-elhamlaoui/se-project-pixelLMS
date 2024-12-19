@@ -1,6 +1,6 @@
 # application-frontend
 
-## Project setup
+## Course setup
 ```
 npm install
 ```

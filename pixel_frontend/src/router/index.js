@@ -3,8 +3,8 @@ import HomeView from '../views/GeneralViews/HomeView.vue';
 import ProfileView from '@/views/GeneralViews/ProfileView.vue';
 import CalendarView from '@/views/GeneralViews/CalendarView.vue';
 
-import ProjectView from '../views/ProjectViews/ProjectView.vue';
-import TasksView from '@/views/ProjectViews/TasksView.vue';
+import CourseView from '../views/CourseViews/CourseView.vue';
+import TasksView from '@/views/CourseViews/TasksView.vue';
 
 import {getUser, isLogged} from '@/modules/auth';
 
@@ -20,9 +20,9 @@ const routes = [
     component: ProfileView
   },
   {
-    path: '/project/:id',
-    name: 'project',
-    component: ProjectView
+    path: '/course/:id',
+    name: 'course',
+    component: CourseView
   },
   {
     path: '/calendar',
@@ -37,7 +37,7 @@ const routes = [
   {
     path: '/discussion/:id',
     name: 'discussions',
-    component: () => import('../views/ProjectViews/DiscussionsView.vue')
+    component: () => import('../views/CourseViews/DiscussionsView.vue')
   },
   {
     path: '/auth',
@@ -71,7 +71,7 @@ router.beforeEach(async (to, from, next) => {
 
     try {
       const user = await getUser();
-      if (user.role.toLowerCase() !== 'stagiaire') {
+      if (user.role.toLowerCase() !== 'student') {
         next();
       } else {
         next('/');
@@ -83,7 +83,7 @@ router.beforeEach(async (to, from, next) => {
 
     if (to.name === 'tasks') {
       const id = to.params.id;
-      if (localStorage.getItem("project") !== id) {
+      if (localStorage.getItem("course") !== id) {
         return next('/');
       }
     }

@@ -1,24 +1,28 @@
 <template>
     <v-app>
-        <div class="background-image"></div> 
+        <div class="background-image"></div>
         <v-main>
-            <v-container fluid class="fill-height dark-background align-center justify-center">
-                <v-row class="d-flex justify-center">
-                    <v-col cols="12" sm="8" md="4">
+            <v-container fluid class="fill-height">
+                <v-row class="fill-height d-flex">
+                    <!-- Left Column: Image -->
+                    <v-col cols="12" md="5" class="d-flex align-center justify-center">
                         <v-img
-                            src="@/assets/banner.png" 
-                            class="mb-4"
+                            src="@/assets/banner.png"
+                            class="image-left"
                             contain
                         ></v-img>
+                    </v-col>
 
-                        <v-card  class="elevation-12 pa-4" outlined>
-                            <v-card-title class="text-h5 text-center">
-                                Connexion
+                    <!-- Right Column: Login Interface -->
+                    <v-col cols="12" md="7" class="d-flex align-center justify-center">
+                        <v-card class="elevation-12 pa-6 login-card" outlined>
+                            <v-card-title class="text-h4 text-center">
+                                Login
                             </v-card-title>
 
                             <v-divider></v-divider>
 
-                            <v-card-subtitle class="text-center mb-4">
+                            <v-card-subtitle class="text-center mb-6">
                                 <span class="text--secondary">{{ Message }}</span>
                             </v-card-subtitle>
 
@@ -26,14 +30,14 @@
                                 <v-form @submit.prevent="log">
                                     <v-text-field
                                         v-model="username"
-                                        label="Nom d'utilisateur"
+                                        label="Username"
                                         outlined
                                         dense
                                         class="mb-4"
                                     ></v-text-field>
                                     <v-text-field
                                         v-model="password"
-                                        label="Mot de passe"
+                                        label="Password"
                                         type="password"
                                         outlined
                                         dense
@@ -41,11 +45,11 @@
                                     ></v-text-field>
                                     <v-btn
                                         type="submit"
-                                        color="primary"
+                                        color="dark orange"
                                         block
                                         class="mt-4"
                                     >
-                                        Se connecter
+                                        Confirm
                                     </v-btn>
                                 </v-form>
                             </v-card-text>
@@ -65,7 +69,7 @@ export default {
         return {
             username: '',
             password: '',
-            Message: 'Veuillez entrer vos identifiants',
+            Message: 'Enter your information',
         };
     },
     methods: {
@@ -74,7 +78,7 @@ export default {
             if (response) {
                 this.$router.push('/');
             } else {
-                this.Message = 'Identifiants invalides';
+                this.Message = 'Username or password incorrect';
             }
         },
     },
@@ -88,25 +92,42 @@ export default {
     left: -20px;
     width: 200%;
     height: 200%;
-    background-image: url('@/assets/background.jpg'); 
-    background-size: cover; 
-    background-position: center; 
+    background-image: url('@/assets/background.png');
+    background-size: cover;
+    background-position: center;
     background-repeat: no-repeat;
-    filter: blur(5px); 
-    z-index: 0; 
+    filter: blur(4px);
+    z-index: 0;
 }
 
+.image-left {
+    max-width: 80%;
+    max-height: 80%;
+    object-fit: contain;
+}
+
+.login-card {
+    width: 80%; /* Increased width for a balanced look */
+    max-width: 600px; /* Limit maximum width on larger screens */
+}
 
 .v-card-title {
     font-weight: bold;
 }
 
 .v-card-subtitle {
-    font-size: 1.1em;
+    font-size: 1.2em;
 }
 
 .v-btn {
     text-transform: none;
+    font-size: 1.1em;
+    font-weight: bold;
+    background-color: rgb(240, 140, 17);
+    color: rgb(255, 255, 255);
 }
 
+.v-text-field {
+    font-size: 1.1em;
+}
 </style>

@@ -2,9 +2,9 @@
   <v-container v-if="!loading">
     <!-- Greeting Header -->
     <v-row>
-      <h2>Bonjour, {{ username }}</h2><br>
+      <h2>Welcome, {{ username }}</h2><br>
       <v-divider></v-divider><br>
-      <h3>Continuez votre travail :</h3>
+      <h3>Continue your work :</h3>
     </v-row>
 
     <!-- Filter Controls -->
@@ -12,32 +12,16 @@
       <v-col>
         <v-text-field
           v-model="filters.title"
-          label="Filtrer par titre"
+          label="Filter by title"
           solo
         ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-select
-          v-model="filters.status"
-          :items="statusOptions"
-          label="Filtrer par statut"
-          solo
-        ></v-select>
-      </v-col>
-      <v-col>
-        <v-select
-          v-model="filters.startYear"
-          :items="yearOptions"
-          label="Année de début"
-          solo
-        ></v-select>
       </v-col>
     </v-row>
     
     <!-- Cards -->
-    <v-row v-if="projects.length > 0">
-      <v-col v-for="project in sortedFilteredProjects" :key="project.projectid" cols="12" md="4">
-        <DashboardCard :data="project" :background="true" class="card-hover" />
+    <v-row v-if="courses.length > 0">
+      <v-col v-for="course in sortedFilteredCourses" :key="course.courseid" cols="12" md="4">
+        <DashboardCard :data="course" :background="true" class="card-hover" />
       </v-col>
     </v-row>
   </v-container>
@@ -46,7 +30,7 @@
 <script>
 import DashboardCard from '@/components/DashboardCard.vue';
 import { getUser } from '@/modules/auth';
-import { fetchEngagedProjects } from '@/modules/data/project';
+import { fetchEngagedCourses } from '@/modules/data/course';
 
 export default {
   components: {
@@ -55,40 +39,25 @@ export default {
   data() {
     return {
       username: '',
-      projects: [],
+      courses: [],
       filters: {
-        title: '',
-        status: 'Tous',
-        startYear: 'Tous',
+        title: '', // Filter by title only
       },
-      statusOptions: ['Tous'],
       loading: true,
     };
   },
   computed: {
-    filteredProjects() {
-      return this.projects.filter(project => {
-        const startYearMatch = this.filters.startYear !== 'Tous' ? new Date(project.startdate).getFullYear() == this.filters.startYear : true;
-        return (
-          (this.filters.title ? project.title.toLowerCase().includes(this.filters.title.toLowerCase()) : true) &&
-          (this.filters.status !== 'Tous' ? project.status === this.filters.status : true) &&
-          startYearMatch
-        );
+    filteredCourses() {
+      return this.courses.filter(course => {
+        // Only filter by title
+        return this.filters.title ? course.title.toLowerCase().includes(this.filters.title.toLowerCase()) : true;
       });
     },
-    sortedFilteredProjects() {
-      return this.filteredProjects.sort((a, b) => {
+    sortedFilteredCourses() {
+      return this.filteredCourses.sort((a, b) => {
         const statusOrder = ['Non Commencée', 'En Cours', 'Terminée']; 
         return statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status);
       });
-    },
-    yearOptions() {
-      const currentYear = new Date().getFullYear();
-      const years = ['Tous'];
-      for (let year = currentYear; year >= 2020; year--) {
-        years.push(year);
-      }
-      return years;
     }
   },
   methods: {
@@ -104,20 +73,13 @@ export default {
     if (user == null) { return; }
 
     this.username = user.name;
-    const projects = await fetchEngagedProjects(user.userid);
+    const courses = await fetchEngagedCourses(user.userid);
 
-    const allstatus = new Set();
-    for (let i = 0; i < projects.length; i++) {
-      allstatus.add(projects[i].status);
-      projects[i].startDate = this.formatDate(projects[i].startdate);
-      projects[i].endDate = this.formatDate(projects[i].enddate);
-    }
-    this.statusOptions.push(...allstatus);
-
-    this.projects = projects;
+    this.courses = courses;
     this.loading = false;
   }
 };
+
 </script>
 
 <style>
@@ -135,7 +97,7 @@ export default {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.project-description {
+.course-description {
   font-size: 14px;
   line-height: 1.5;
 }

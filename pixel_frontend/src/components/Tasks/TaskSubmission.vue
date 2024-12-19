@@ -7,8 +7,8 @@
             {{ currentTask.description }}
         </v-card-subtitle>
         <v-card-text>
-            <div><strong>Échéance:</strong> {{ currentTask.duedate }}</div>
-            <div><strong>Statut:</strong> {{ currentTask.status }}</div>
+            <div><strong>Deadline:</strong> {{ currentTask.duedate }}</div>
+            <div><strong>Status:</strong> {{ currentTask.status }}</div>
         </v-card-text>
 
         <v-card-text>
@@ -52,21 +52,21 @@
                 </v-list-item-group>
                 
                 <v-list-item v-if="(!files || files.length == 0) && (!importfiles || importfiles.length == 0)">
-                    <v-list-item-content>Aucun fichier ajouté</v-list-item-content>
+                    <v-list-item-content>No file added.</v-list-item-content>
                 </v-list-item>
             </v-list>
             <v-file-input
                 v-model="newFile"
-                label="Ajouter un fichier"
+                label="Add file"
                 @change="addFile"
                 prepend-icon="mdi-attachment"
             />
         </v-card-text>
 
         <v-card-actions>
-            <v-icon>mdi-alert</v-icon> Une fois soumis, il n'est plus possible de supprimer le fichier.
-            <v-btn text @click="close">Fermer</v-btn>
-            <v-btn color="primary" @click="submitTask">Soumettre</v-btn>
+            <v-icon>mdi-alert</v-icon> Once submitted, it is no longer possible to delete the file.
+            <v-btn text @click="close">Close</v-btn>
+            <v-btn color="primary" @click="submitTask">Submit</v-btn>
         </v-card-actions>
 
         <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="snackbar.timeout">
@@ -79,7 +79,7 @@
 import { getFilesByTask, downloadFile } from '@/modules/data/file';
 
 export default {
-    props: ['currentTask', 'projectID'],
+    props: ['currentTask', 'courseID'],
     data() {
         return {
             importfiles: [],
@@ -118,7 +118,7 @@ export default {
             try {
                 await downloadFile(fileId);
             } catch (error) {
-                this.showError('Échec du téléchargement du fichier: ' + error.message);
+                this.showError('File upload failed:' + error.message);
             }
         },
         showError(message) {
@@ -130,7 +130,7 @@ export default {
         try {
             this.importfiles = await getFilesByTask(this.currentTask.taskid) || [];
         } catch (error) {
-            this.showError('Échec de la récupération des fichiers: ' + error.message);
+            this.showError('Failed to retrieve the files:' + error.message);
         }
     }
 }
@@ -153,9 +153,9 @@ export default {
     font-size: 16px;
     margin-bottom: 10px;
     margin-top: 10px;
-    line-height: 1.5; /* Assurer une meilleure lisibilité */
-    white-space: normal; /* Permettre au texte de se renvoyer à la ligne */
-    word-wrap: break-word; /* Casser les longs mots pour éviter le débordement */
+    line-height: 1.5; /*Ensure better readability.*/
+    white-space: normal; /* Allow the text to wrap to the next line. */
+    word-wrap: break-word; /*Break long words to prevent overflow. */
 }
 .v-card-text {
     margin-bottom: 16px;

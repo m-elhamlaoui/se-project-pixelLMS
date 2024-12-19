@@ -4,7 +4,7 @@
             <v-col>
                 <v-text-field min-width="100px"
                     v-model="userSearch"
-                    label="Rechercher des utilisateurs"
+                    label="Search for users."
                     prepend-inner-icon="mdi-magnify"
                 ></v-text-field>
             </v-col>
@@ -12,7 +12,7 @@
             <v-spacer></v-spacer>
 
             <v-col cols="auto">
-                <v-btn color="primary" @click="openCreateUserDialog">Créer un utilisateur</v-btn>
+                <v-btn color="primary" @click="openCreateUserDialog">Create a user</v-btn>
             </v-col>
         </v-row>
   
@@ -31,22 +31,22 @@
                 </v-list-item>
             </v-list-item-group>
             <v-list v-else>
-                <v-list-item>Cela prendra quelques secondes. Si le problème persiste et qu'aucun utilisateur n'est trouvé, il se peut qu'il n'existe pas.</v-list-item>
+                <v-list-item>This will take a few seconds. If the problem persists and no users are found, it is possible that the user does not exist.</v-list-item>
             </v-list>
         </v-list>
 
         <v-dialog v-model="editDialog" max-width="600px">
-            <UserCreate @close="close" @submit="myeditUser" :useradmin="superadmin" :user="currentUser"/>
+            <UserCreate @close="close" @submit="myeditUser" :useradmin="admin" :user="currentUser"/>
         </v-dialog>
 
         <v-dialog v-model="createDialog" max-width="600px">
-            <UserCreate @close="close" @submit="mycreateUser" :useradmin="superadmin" :user="null"/>
+            <UserCreate @close="close" @submit="mycreateUser" :useradmin="admin" :user="null"/>
         </v-dialog>
 
         <!-- Affichage des messages d'erreur -->
         <v-snackbar v-model="errorSnackbar" color="red">
             {{ errorMessage }}
-            <v-btn color="white" text @click="errorSnackbar = false">Fermer</v-btn>
+            <v-btn color="white" text @click="errorSnackbar = false">Close</v-btn>
         </v-snackbar>
     </v-container>
 </template>
@@ -65,7 +65,7 @@ export default {
     data() {
         return {
             userSearch: '',
-            superadmin: false,
+            admin: false,
             editDialog: false,
             createDialog: false,
             currentUser: null,
@@ -107,7 +107,7 @@ export default {
                 }
                 window.location.reload();
             } catch (error) {
-                this.errorMessage = 'Erreur lors de la création de l\'utilisateur : ' + error.message;
+                this.errorMessage = 'Error while creating the user:' + error.message;
                 this.errorSnackbar = true;
             }
         },
@@ -117,14 +117,14 @@ export default {
                 await updateUser(user, user.password);
                 window.location.reload();
             } catch (error) {
-                this.errorMessage = 'Erreur lors de la mise à jour de l\'utilisateur : ' + error.message;
+                this.errorMessage = 'Error while updating the user: ' + error.message;
                 this.errorSnackbar = true;
             }
         }
     },
     async created() {
         const user = await getUser();
-        this.superadmin = user.role.toLowerCase() === 'superadmin';
+        this.admin = user.role.toLowerCase() === 'admin';
     }
 };
 </script>

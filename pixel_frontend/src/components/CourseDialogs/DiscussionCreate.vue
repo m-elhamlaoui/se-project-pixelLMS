@@ -1,7 +1,7 @@
 <template>
     <v-card>
         <v-card-title>
-            <span class="headline">{{ headertext }} une discussion</span>
+            <span class="headline">{{ headertext }} a discussion</span>
         </v-card-title>
         <v-card-text>
             <v-form ref="form" v-model="valid">
@@ -19,8 +19,8 @@
         </v-card-text>
         <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="primary" text @click="close">Annuler</v-btn>
-            <v-btn color="primary" text :disabled="!valid" @click="submit">Soumettre</v-btn>
+            <v-btn color="primary" text @click="close">Cancel</v-btn>
+            <v-btn color="primary" text :disabled="!valid" @click="submit">Submit</v-btn>
         </v-card-actions>
     </v-card>
 </template>
@@ -31,13 +31,13 @@ export default {
     data() {
         return {
             valid: false,
-            headertext: 'Créer',
+            headertext: 'Create',
             newDiscussion: {
                 title: '',
                 description: '',
             },
             rules: {
-                required: value => !!value || 'Champ requis.',
+                required: value => !!value || 'Required field.',
             }
         }
     },
@@ -54,7 +54,7 @@ export default {
     created() {
         if (this.discussion) {
             this.newDiscussion = this.discussion;
-            this.headertext = 'Modifier';
+            this.headertext = 'Edit';
         }
     }
 }

@@ -2,9 +2,9 @@
   <div class="calendar-container">
     <div class="calendar">
       <div class="calendar-header">
-        <button @click="prevMonth" class="nav-button">« Précédent</button>
+        <button @click="prevMonth" class="nav-button">« Previous</button>
         <span class="month-year">{{ currentMonthName }} {{ currentYear }}</span>
-        <button @click="nextMonth" class="nav-button">Suivant »</button>
+        <button @click="nextMonth" class="nav-button">Next »</button>
       </div>
       <div class="calendar-grid">
         <div v-for="day in daysInMonth" :key="day.date" class="calendar-day">
@@ -30,18 +30,18 @@
         @click="snackbar.visible = false"
         text
       >
-        Fermer
+        Close
       </v-btn>
     </v-snackbar>
 
     <v-dialog v-model="deleteDialogVisible" max-width="600">
       <v-card>
-        <v-card-title class="headline">Confirmation</v-card-title>
-        <v-card-text>Êtes-vous sûr de vouloir supprimer cet événement ?</v-card-text>
+        <v-card-title class="headline">Confirm</v-card-title>
+        <v-card-text>Are you sure you want to delete this event?</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text @click="deleteDialogVisible = false">Annuler</v-btn>
-          <v-btn color="error" text @click="confirmDelete">Supprimer</v-btn>
+          <v-btn text @click="deleteDialogVisible = false">Cancel</v-btn>
+          <v-btn color="error" text @click="confirmDelete">Remove</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -56,10 +56,8 @@
           <v-icon @click="openDeleteDialog(selectedEvent.eventnumber)" color="error">mdi-delete</v-icon>
         </v-col>
       </v-row>
-      <p><strong>Projet :</strong> {{ selectedEvent.projectTitle }}</p>
+      <p><strong>Course :</strong> {{ selectedEvent.courseTitle }}</p>
       <p><strong>Description :</strong> {{ selectedEvent.description }}</p>
-      <p><strong>Heure de début :</strong> {{ formatDate(selectedEvent.starttime) }}</p>
-      <p><strong>Heure de fin :</strong> {{ formatDate(selectedEvent.endtime) }}</p>
     </div>
   </div>
 </template>
@@ -87,7 +85,7 @@ export default {
   },
   computed: {
     currentMonthName() {
-      return new Intl.DateTimeFormat('fr-FR', { month: 'long' }).format(new Date(this.currentYear, this.currentMonth));
+      return new Intl.DateTimeFormat('en-US', { month: 'long' }).format(new Date(this.currentYear, this.currentMonth));
     },
     daysInMonth() {
       const days = [];
@@ -115,7 +113,7 @@ export default {
         const events = await getEventsbyUserId(user.userid);
         this.events = events;
       } catch (error) {
-        console.error('Erreur lors de la récupération des événements :', error);
+        console.error('Error while retrieving the events:', error);
       }
     },
     prevMonth() {
@@ -137,7 +135,7 @@ export default {
       this.fetchEvents();
     },
     formatDate(date) {
-      return new Date(date).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      return new Date(date).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit' });
     },
     onEventClick(event) {
       this.selectedEvent = event;
@@ -155,8 +153,8 @@ export default {
           this.deleteDialogVisible = false;
           window.location.reload();
         } catch (error) {
-          console.error('Erreur lors de la suppression de l\'événement :', error);
-          this.snackbar.message = 'Erreur lors de la suppression de l\'événement';
+          console.error('Error while deleting the event:', error);
+          this.snackbar.message = 'Error while deleting the event.';
           this.snackbar.color = 'error';
           this.snackbar.visible = true;
           this.deleteDialogVisible = false;
@@ -192,14 +190,13 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  background: #1e1e2f;
-  border-bottom: 1px solid #34495e;
+  background-image: url('@/assets/background.png');
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .nav-button {
-  background: none;
-  border: 2px solid #F2B746;
-  color: #F2B746;
+  background: rgba(0, 0, 0, 0.2);
+  color: #ffffff;
   cursor: pointer;
   font-size: 1em;
   padding: 10px;
@@ -208,7 +205,7 @@ export default {
 }
 
 .nav-button:hover {
-  background-color: #F2B746;
+  background-color: #faf5f5;
   color: #1e1e2f;
 }
 
@@ -253,8 +250,8 @@ export default {
 .event-title {
   margin: 0;
   font-size: 0.9em;
-  color: #1e1e2f;
-  background-color: #F2B746;
+  color: #f7f7fc;
+  background-color: #684911;
   padding: 5px;
   border-radius: 6px;
   transition: background-color 0.3s;
@@ -266,8 +263,8 @@ export default {
 
 .event-details {
   padding: 20px;
-  background: #1e1e2f;
-  border-top: 1px solid #34495e;
+  background: #31b0c7;
+  border-top: 1px solid #ffffff;
   box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.2);
   color: #ecf0f1;
 }

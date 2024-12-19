@@ -77,7 +77,7 @@ async function logout(){
     });
     localStorage.removeItem('serversecuritytoken');
     localStorage.removeItem('user');
-    localStorage.removeItem('project');
+    localStorage.removeItem('course');
     window.location.reload();
 }
 

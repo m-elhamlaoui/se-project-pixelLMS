@@ -1,7 +1,7 @@
 import {v1, handleUnauthorized} from '../apiUtils';
 
-async function getProjectDiscussions(projectid) {
-    const response = await fetch(v1 + 'api/discussion/getbyproject/' + projectid, {
+async function getCourseDiscussions(courseid) {
+    const response = await fetch(v1 + 'api/discussion/getbycourse/' + courseid, {
         method: 'GET',
         headers: {
             'Authorization': localStorage.getItem('serversecuritytoken')
@@ -132,4 +132,4 @@ async function sendMessage(message, discussionid) {
     return response.statusText;
 }
 
-export {sendMessage, fetchMessages, createDiscussion, deleteDiscussion, updateDiscussion, getProjectDiscussions, getDiscussionById}
+export {sendMessage, fetchMessages, createDiscussion, deleteDiscussion, updateDiscussion, getCourseDiscussions, getDiscussionById}

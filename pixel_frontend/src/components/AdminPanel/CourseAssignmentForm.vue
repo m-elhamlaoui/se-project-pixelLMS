@@ -1,16 +1,16 @@
 <template>
     <v-card>
         <v-card-title>
-            <span class="headline">Assigner des utilisateurs</span>
+            <span class="headline">Assign new users</span>
         </v-card-title>
         <v-card-text>
             <v-text-field
                 v-model="newUserEmail"
-                label="Email de nouvel utilisateur"
+                label="User Email"
                 @keyup.enter="addUser"
                 outlined
             ></v-text-field>
-            <v-btn @click="addUser" color="primary">Ajouter</v-btn>
+            <v-btn @click="addUser" color="primary">Add User</v-btn>
 
             <v-list>
                 <v-list-item-group>
@@ -33,23 +33,23 @@
 
         <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn @click="close">Annuler</v-btn>
-            <v-btn @click="submitTask" color="primary">Enregistrer</v-btn>
+            <v-btn @click="close">Cancel</v-btn>
+            <v-btn @click="submitTask" color="primary">Save</v-btn>
         </v-card-actions>
     </v-card>
 
     <v-snackbar v-model="errorSnackbar" color="error" top>
         {{ errorMessage }}
-        <v-btn text @click="errorSnackbar = false">Fermer</v-btn>
+        <v-btn text @click="errorSnackbar = false">Close</v-btn>
     </v-snackbar>
 </template>
 
 <script>
 import { getUser } from '@/modules/auth';
-import { getUserByEmail, getUsersInProject } from '@/modules/data/user';
+import { getUserByEmail, getUsersInCourse } from '@/modules/data/user';
 
 export default {
-    props: ['project'],
+    props: ['course'],
     data() {
         return {
             newUserEmail: '',
@@ -74,7 +74,7 @@ export default {
                 }
                 return originalUser.selected !== user.selected;
             });
-            this.$emit('submit', this.project.projectid, differences);
+            this.$emit('submit', this.course.courseid, differences);
         },
         async addUser() {
             if (this.newUserEmail) {
@@ -86,7 +86,7 @@ export default {
                 }
                 
                 if (newUser.userid === this.myuser.userid) {
-                    this.showError('Vous ne pouvez pas vous ajouter à un projet');
+                    this.showError('You cannot add yourself to a course.');
                     return;
                 }
 
@@ -102,7 +102,7 @@ export default {
                     this.newUserEmail = ''; 
                 }
                 else{
-                    this.showError('Utilisateur non trouvé');
+                    this.showError('User not found');
                 }
             }
         },
@@ -113,8 +113,8 @@ export default {
     },
     async created(){
         this.myuser = await getUser();
-        if (this.project) {
-            var allUsers = await getUsersInProject(this.project.projectid);
+        if (this.course) {
+            var allUsers = await getUsersInCourse(this.course.courseid);
             allUsers = allUsers.filter(user => user.userid !== this.myuser.userid);
             this.users = allUsers.map(user => {
                 return {

@@ -1,13 +1,13 @@
 <template>
     <v-card>
         <v-card-title>
-            <span class="headline">Planifier un événement</span>
+            <span class="headline">Plan an event</span>
         </v-card-title>
         <v-card-text>
             <v-form ref="form" v-model="valid">
                 <v-text-field
                     v-model="newEvent.title"
-                    label="Titre"
+                    label="Title"
                     :rules="[rules.required]"
                     required
                 ></v-text-field>
@@ -25,14 +25,14 @@
                 ></v-text-field>
                 <v-text-field
                     v-model="newEvent.starttime"
-                    label="Heure de début"
+                    label="Start time"
                     type="time"
                     :rules="[rules.required]"
                     required
                 ></v-text-field>
                 <v-text-field
                     v-model="newEvent.endtime"
-                    label="Heure de fin"
+                    label="End time"
                     type="time"
                     :rules="[rules.required]"
                     required
@@ -41,8 +41,8 @@
         </v-card-text>
         <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn text @click="close">Annuler</v-btn>
-            <v-btn color="primary" text :disabled="!valid" @click="submit">Soumettre</v-btn>
+            <v-btn text @click="close">Cancel</v-btn>
+            <v-btn color="primary" text :disabled="!valid" @click="submit">Submit</v-btn>
         </v-card-actions>
     </v-card>
 </template>
@@ -60,7 +60,7 @@ export default {
                 endtime: ''
             },
             rules: {
-                required: value => !!value || 'Champ requis.',
+                required: value => !!value || 'Required field.',
             }
         }
     },
