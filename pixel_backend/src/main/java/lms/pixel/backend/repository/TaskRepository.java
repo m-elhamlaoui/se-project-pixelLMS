@@ -4,9 +4,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import lms.pixel.backend.model.Task;
-import lms.pixel.backend.utils.TaskRowMapper;
+import lms.pixel.backend.rowMapperStrategy.RowMapperStrategy;
+import lms.pixel.backend.rowMapperStrategy.TaskMapper;
 
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 
@@ -48,7 +48,7 @@ public class TaskRepository {
     }
 
     public Task getTaskById(int taskid) {
-        RowMapper<Task> rowMapper = new TaskRowMapper();
+        RowMapperStrategy<Task> rowMapper = new TaskMapper();
         String sql = "SELECT * FROM task WHERE taskid = ?";
         List<Task> tasks = template.query(sql, rowMapper, taskid);
         if (tasks.isEmpty()) {
@@ -58,13 +58,13 @@ public class TaskRepository {
     }  
 
     public List<Task> getTasksByCourse(int courseid) {
-        RowMapper<Task> rowMapper = new TaskRowMapper();
+        RowMapperStrategy<Task> rowMapper = new TaskMapper();
         String sql = "SELECT * FROM task WHERE courseid = ?";
         return template.query(sql, rowMapper, courseid);
     }
 
     public List<Task> getTasksByUser(int userid) {
-        RowMapper<Task> rowMapper = new TaskRowMapper();
+        RowMapperStrategy<Task> rowMapper = new TaskMapper();
         String sql = """
                 SELECT task.* 
                 FROM task

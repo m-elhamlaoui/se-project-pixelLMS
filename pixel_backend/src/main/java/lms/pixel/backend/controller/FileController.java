@@ -1,51 +1,37 @@
 package lms.pixel.backend.controller;
 
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import lms.pixel.backend.Exceptions.NotFoundException;
+import lms.pixel.backend.config.PropertiesConfig;
+import lms.pixel.backend.exceptions.NotFoundException;
 import lms.pixel.backend.model.myFile;
+import lms.pixel.backend.utils.FileValidator;
+import lms.pixel.backend.utils.FileStorageManager;
 import lms.pixel.backend.repository.FileRepository;
-import lms.pixel.backend.utils.FileStorageConfig;
-import lms.pixel.backend.utils.PermissionChecker;
+import lms.pixel.backend.security.PermissionChecker;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.io.File;
-import java.nio.file.Files;
 
 @RestController
 @RequestMapping("api/file")
 public class FileController {
+
     private final FileRepository fileRepository;
     private final PermissionChecker permissionChecker;
-    private final FileStorageConfig fileStorageConfig;
+    private final FileValidator fileValidator;
+    private final FileStorageManager fileStorageManager;
 
-    private static final List<String> ALLOWED_MIME_TYPES = List.of(
-        "application/pdf",
-        "application/zip",
-        "application/x-zip-compressed",
-        "application/x-zip",
-        "application/x-7z-compressed",
-        "application/x-rar-compressed",
-        "application/x-tar",
-        "application/x-gzip",
-        "application/x-bzip2"
-    );
-
-    public FileController(FileRepository fileRepository, PermissionChecker permissionChecker, FileStorageConfig fileStorageConfig) {
+    public FileController(FileRepository fileRepository, PermissionChecker permissionChecker, 
+                          FileValidator fileValidator, FileStorageManager fileStorageManager, PropertiesConfig propertiesConfig) {
         this.fileRepository = fileRepository;
         this.permissionChecker = permissionChecker;
-        this.fileStorageConfig = fileStorageConfig;
+        this.fileValidator = fileValidator;
+
+        this.fileStorageManager = fileStorageManager;
+        fileStorageManager.setPath(propertiesConfig.getFileStoragePath());
     }
 
     @PostMapping("/")
@@ -57,33 +43,18 @@ public class FileController {
 
         int userId = permissionChecker.getUseridByToken(token);
 
-        if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body("File is empty");
-        }
-        
-        String contentType = file.getContentType();
-        if (!ALLOWED_MIME_TYPES.contains(contentType)) {
-            return ResponseEntity.badRequest().body("File type not allowed");
+        String validationError = fileValidator.validate(file);
+        if (validationError != null) {
+            return ResponseEntity.badRequest().body(validationError);
         }
 
-        try {
-            File storageDir = new File(fileStorageConfig.getFileStoragePath());
-            if (!storageDir.exists()) {
-                storageDir.mkdirs();
-            }
-            String originalFilename = file.getOriginalFilename();
-            if (originalFilename == null || originalFilename.contains("..")) {
-                return ResponseEntity.badRequest().body("Invalid file name");
-            }
-            String filePath = fileStorageConfig.getFileStoragePath() + File.separator + originalFilename;
-            try (OutputStream os = new FileOutputStream(filePath)) {
-                os.write(file.getBytes());
-            }
-            fileRepository.attach(filePath, userId, attachToId, foreignKeyType);
-            return ResponseEntity.ok("File uploaded successfully");
-        } catch (IOException e) {
-            return ResponseEntity.status(500).body("Failed to upload file");
+        String filePath = fileStorageManager.storeFile(file);
+        if (filePath == null) {
+            return ResponseEntity.status(500).body("Failed to store the file");
         }
+
+        fileRepository.attach(filePath, userId, attachToId, foreignKeyType);
+        return ResponseEntity.ok("File uploaded successfully");
     }
 
     @GetMapping("/{fileId}")
@@ -94,63 +65,31 @@ public class FileController {
 
     @GetMapping("/course/{courseId}")
     public ResponseEntity<List<myFile>> getFilesByCourse(@PathVariable("courseId") int courseId) {
-        List<myFile> files = fileRepository.getFilesByCourse(courseId);
-        return ResponseEntity.ok(files);
+        return ResponseEntity.ok(fileRepository.getFilesByCourse(courseId));
     }
 
     @GetMapping("/task/{taskId}")
     public ResponseEntity<List<myFile>> getFilesByTask(@PathVariable("taskId") int taskId) {
-        List<myFile> files = fileRepository.getFilesByTask(taskId);
-        return ResponseEntity.ok(files);
+        return ResponseEntity.ok(fileRepository.getFilesByTask(taskId));
     }
 
     @GetMapping("/message/{messageId}")
     public ResponseEntity<List<myFile>> getFilesByMessage(@PathVariable("messageId") int messageId) {
-        List<myFile> files = fileRepository.getFilesByMessage(messageId);
-        return ResponseEntity.ok(files);
+        return ResponseEntity.ok(fileRepository.getFilesByMessage(messageId));
     }
 
     @GetMapping("/profile/{profileId}")
     public ResponseEntity<List<myFile>> getFilesByProfile(@PathVariable("profileId") int profileId) {
-        List<myFile> files = fileRepository.getFilesByProfile(profileId);
-        return ResponseEntity.ok(files);
+        return ResponseEntity.ok(fileRepository.getFilesByProfile(profileId));
     }
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<myFile>> getFilesByUser(@PathVariable("userId") int userId) {
-        List<myFile> files = fileRepository.getFilesByUser(userId);
-        return ResponseEntity.ok(files);
+        return ResponseEntity.ok(fileRepository.getFilesByUser(userId));
     }
 
     @GetMapping("/download/{fileId}")
     public ResponseEntity<Resource> downloadFile(@PathVariable("fileId") int fileId) throws NotFoundException {
-        myFile file = fileRepository.getFileById(fileId);
-
-        if (file == null) {
-            throw new NotFoundException();
-        }
-        File fileToDownload = new File(file.getPath());
-        if (!fileToDownload.exists()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        try {
-            Path filePath = Paths.get(file.getPath()).normalize();
-            Resource resource = new FileSystemResource(filePath);
-            if (!resource.exists() || !resource.isReadable()) {
-                return ResponseEntity.notFound().build();
-            }
-            String contentType = Files.probeContentType(filePath);
-            if (contentType == null) {
-                contentType = "application/json";
-            }
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                    .body(resource);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.internalServerError().build();
-        }
+        return fileStorageManager.getDownloadableFile(fileId, fileRepository);
     }
 }

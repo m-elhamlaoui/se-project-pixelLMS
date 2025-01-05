@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
 import lms.pixel.backend.model.myFile;
-import lms.pixel.backend.utils.FileRowMapper;
+import lms.pixel.backend.rowMapperStrategy.FileMapper;
 
 import java.util.List;
 
@@ -35,7 +35,7 @@ public class FileRepository {
 
     public myFile getFileById(int fileId) {
         String sql = "SELECT * FROM file_ WHERE fileid = ?";
-        List<myFile> files = template.query(sql, new FileRowMapper(), fileId);
+        List<myFile> files = template.query(sql, new FileMapper(), fileId);
         if (files.isEmpty()) {
             return null;
         }
@@ -44,27 +44,27 @@ public class FileRepository {
 
     public List<myFile> getFilesByCourse(int courseId) {
         String sql = "SELECT * FROM file_ WHERE courseid = ?";
-        return template.query(sql, new FileRowMapper(), courseId);
+        return template.query(sql, new FileMapper(), courseId);
     }
 
     public List<myFile> getFilesByTask(int taskId) {
         String sql = "SELECT * FROM file_ WHERE taskid = ?";
-        return template.query(sql, new FileRowMapper(), taskId);
+        return template.query(sql, new FileMapper(), taskId);
     }
 
     public List<myFile> getFilesByMessage(int messageId) {
         String sql = "SELECT * FROM file_ WHERE messageid = ?";
-        return template.query(sql, new FileRowMapper(), messageId);
+        return template.query(sql, new FileMapper(), messageId);
     }
 
     public List<myFile> getFilesByProfile(int profileId) {
         String sql = "SELECT * FROM file_ WHERE profileid = ?";
-        return template.query(sql, new FileRowMapper(), profileId);
+        return template.query(sql, new FileMapper(), profileId);
     }
 
     public List<myFile> getFilesByUser(int userId) {
         String sql = "SELECT * FROM file_ WHERE userid = ?";
-        return template.query(sql, new FileRowMapper(), userId);
+        return template.query(sql, new FileMapper(), userId);
     } 
 
 

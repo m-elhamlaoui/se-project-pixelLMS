@@ -1,15 +1,15 @@
 package lms.pixel.backend.repository;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
 import lms.pixel.backend.model.Discussion;
 import lms.pixel.backend.model.Message;
-import lms.pixel.backend.utils.DiscussionRowMapper;
-import lms.pixel.backend.utils.MessageRowMapper;
+import lms.pixel.backend.rowMapperStrategy.DiscussionMapper;
+import lms.pixel.backend.rowMapperStrategy.MessageMapper;
+import lms.pixel.backend.rowMapperStrategy.RowMapperStrategy;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class DiscussionRepository {
     }
 
     public List<Discussion> getDiscussionsOfCourse(int courseid){
-        RowMapper<Discussion> rowMapper = new DiscussionRowMapper();
+        RowMapperStrategy<Discussion> rowMapper = new DiscussionMapper();
         String sql = """
             SELECT * FROM 
                 discussion
@@ -69,7 +69,7 @@ public class DiscussionRepository {
     }
 
     public Discussion getDiscussionById(int discussionid){
-        RowMapper<Discussion> rowMapper = new DiscussionRowMapper();
+        RowMapperStrategy<Discussion> rowMapper = new DiscussionMapper();
         String sql = """
             SELECT * FROM 
                 discussion
@@ -81,7 +81,7 @@ public class DiscussionRepository {
     }
 
     public List<Message> getMessagesOfDiscussion(int discussionid){
-        RowMapper<Message> rowMapper = new MessageRowMapper();
+        RowMapperStrategy<Message> rowMapper = new MessageMapper();
         String sql = """
             SELECT 
                 messageid, discussionid, message.userid, content, timestamp, name

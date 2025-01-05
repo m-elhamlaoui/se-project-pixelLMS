@@ -1,4 +1,4 @@
-package lms.pixel.backend.Exceptions;
+package lms.pixel.backend.exceptions;
 
 public class NotFoundException extends Exception {
     public NotFoundException() {

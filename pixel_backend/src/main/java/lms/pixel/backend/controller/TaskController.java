@@ -4,11 +4,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import lms.pixel.backend.Exceptions.NotFoundException;
-import lms.pixel.backend.Exceptions.OperationNotAuthorizedException;
+import lms.pixel.backend.exceptions.NotFoundException;
+import lms.pixel.backend.exceptions.OperationNotAuthorizedException;
 import lms.pixel.backend.model.Task;
 import lms.pixel.backend.repository.TaskRepository;
-import lms.pixel.backend.utils.PermissionChecker;
+import lms.pixel.backend.security.PermissionChecker;
 
 import java.util.List;
 
@@ -25,12 +25,43 @@ public class TaskController {
     }
 
     @GetMapping("/{taskid}")
-    public ResponseEntity<Task> getTask(@PathVariable int taskid) throws NotFoundException {
+    public ResponseEntity<Task> getById(@PathVariable int taskid) throws NotFoundException {
         Task task = taskRepository.getTaskById(taskid);
         if (task == null) {
             throw new NotFoundException();
         }
         return new ResponseEntity<>(task, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{taskid}")
+    public ResponseEntity<String> delete(@PathVariable int taskid, @RequestHeader("Authorization") String token) throws OperationNotAuthorizedException {
+        
+        int userid = permissionChecker.getUseridByToken(token);
+        boolean isAuthorized = permissionChecker.checkPermission("canAlterTask", userid, taskid);
+        if (!isAuthorized) {
+            throw new OperationNotAuthorizedException("You do not have permission to delete this task", userid);
+        }
+        taskRepository.deleteTask(taskid);
+        return new ResponseEntity<>("Task deleted", HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping("/{taskid}")
+    public ResponseEntity<String> insertOrUpdateTask(@PathVariable int taskid, @RequestHeader("Authorization") String token, @RequestBody Task taskDetails) throws OperationNotAuthorizedException {
+        
+        int userid = permissionChecker.getUseridByToken(token);
+        boolean isAuthorized = permissionChecker.checkPermission("canAlterTask", userid, taskid);
+        if (!isAuthorized) {
+            throw new OperationNotAuthorizedException("You do not have permission to alter this task", userid);
+        }
+
+        Task existingTask = taskRepository.getTaskById(taskid);
+        if (existingTask == null) {
+            taskRepository.createTask(taskDetails, userid);
+            return new ResponseEntity<>("Task created", HttpStatus.CREATED);
+        } else {
+            taskRepository.updateTask(taskid, taskDetails);
+            return new ResponseEntity<>("Task updated", HttpStatus.OK);
+        }
     }
 
     @GetMapping("/course/{courseid}")
@@ -45,38 +76,12 @@ public class TaskController {
         return new ResponseEntity<>(tasks, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{taskid}")
-    public ResponseEntity<String> deleteTask(@PathVariable int taskid, @RequestHeader("Authorization") String token) throws OperationNotAuthorizedException {
-        int userid = permissionChecker.getUseridByToken(token);
-        if (!permissionChecker.canAlterTask(userid, taskid)) {
-            throw new OperationNotAuthorizedException("You do not have permission to delete this task", userid);
-        }
-        taskRepository.deleteTask(taskid);
-        return new ResponseEntity<>("Task deleted", HttpStatus.NO_CONTENT);
-    }
-
-    @PostMapping("/{taskid}")
-    public ResponseEntity<String> insertOrUpdateTask(@PathVariable int taskid, @RequestHeader("Authorization") String token, @RequestBody Task taskDetails) throws OperationNotAuthorizedException {
-        int userid = permissionChecker.getUseridByToken(token);
-
-        if (!permissionChecker.canAlterTask(userid, taskid)) {
-            throw new OperationNotAuthorizedException("You do not have permission to alter this task", userid);
-        }
-
-        Task existingTask = taskRepository.getTaskById(taskid);
-        if (existingTask == null) {
-            taskRepository.createTask(taskDetails, userid);
-            return new ResponseEntity<>("Task created", HttpStatus.CREATED);
-        } else {
-            taskRepository.updateTask(taskid, taskDetails);
-            return new ResponseEntity<>("Task updated", HttpStatus.OK);
-        }
-    }
-
     @PutMapping("/assign/{id}")
     public ResponseEntity<String> assignToUsers(@PathVariable int id, @RequestBody List<List<Object>> traitement, @RequestHeader("Authorization") String token) throws OperationNotAuthorizedException {
+        
         int userid = permissionChecker.getUseridByToken(token);
-        if (!permissionChecker.canAlterTask(userid, id)) {
+        boolean isAuthorized = permissionChecker.checkPermission("canAlterTask", userid, id);
+        if (!isAuthorized) {
             throw new OperationNotAuthorizedException("You do not have permission to assign this task", userid);
         }
 

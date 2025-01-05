@@ -83,4 +83,30 @@ public class User {
     public void setIsdeleted(boolean isdeleted) {
         this.isdeleted = isdeleted;
     }
+
+    public static int ConvertRole(String role) {
+        switch (role) {
+            case "student":
+                return 0;
+            case "teacher":
+                return 1;
+            case "admin":
+                return 2;
+            default:
+                return 3;
+        }
+    }
+
+    public static String ConvertRole(int role) {
+        switch (role) {
+            case 0:
+                return "student";
+            case 1:
+                return "teacher";
+            case 2:
+                return "admin";
+            default:
+                return "Unknown";
+        }
+    }
 }

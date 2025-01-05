@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import lms.pixel.backend.Exceptions.OperationNotAuthorizedException;
+import lms.pixel.backend.exceptions.OperationNotAuthorizedException;
 import lms.pixel.backend.model.Calendar;
 import lms.pixel.backend.repository.CalendarRepository;
-import lms.pixel.backend.utils.PermissionChecker;
+import lms.pixel.backend.security.PermissionChecker;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,17 +31,12 @@ public class CalendarController {
         this.permissionChecker = permissionChecker;
     }
 
-    @GetMapping("/events/{userid}")
-    public List<Calendar> GetEventsByUserId(@PathVariable int userid) {
-        List<Calendar> events = calendarRepository.GetEventsByUserId(userid);
-        return events;
-    }
-
     @PostMapping 
-    public ResponseEntity<String> AddEvent (@RequestBody Calendar event, @RequestHeader("Authorization") String token) throws OperationNotAuthorizedException {
+    public ResponseEntity<String> create(@RequestBody Calendar event, @RequestHeader("Authorization") String token) throws OperationNotAuthorizedException {
+        
         int userid = permissionChecker.getUseridByToken(token);
-
-        if(!permissionChecker.isParticipant(userid, event.getCourseid())){
+        boolean isAuthorized = permissionChecker.checkPermission("isParticipant", userid, event.getCourseid());
+        if(!isAuthorized){
             throw new OperationNotAuthorizedException("You do not have permission to create an event in this course", userid);
         }
 
@@ -50,14 +45,22 @@ public class CalendarController {
     }
 
     @DeleteMapping("/{eventid}")
-    public ResponseEntity<String> DeleteEvent(@PathVariable int eventid, @RequestHeader("Authorization") String token) throws OperationNotAuthorizedException {
+    public ResponseEntity<String> delete(@PathVariable int eventid, @RequestHeader("Authorization") String token) throws OperationNotAuthorizedException {
+        
         int userid = permissionChecker.getUseridByToken(token);
-
-        if(!permissionChecker.isParticipant(userid, calendarRepository.GetEventById(eventid).getCourseid())){
+        boolean isAuthorized = permissionChecker.checkPermission("isParticipant", userid, calendarRepository.GetEventById(eventid).getCourseid());
+        if(!isAuthorized){
             throw new OperationNotAuthorizedException("You do not have permission to delete this event", userid);
         }
 
         calendarRepository.DeleteEvent(eventid);
         return new ResponseEntity<>("Event deleted", HttpStatus.OK);
+    }
+
+    
+    @GetMapping("/events/{userid}")
+    public List<Calendar> GetEventsByUserId(@PathVariable int userid) {
+        List<Calendar> events = calendarRepository.GetEventsByUserId(userid);
+        return events;
     }
 }

@@ -1,13 +1,13 @@
 package lms.pixel.backend.repository;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
 import lms.pixel.backend.model.Course;
-import lms.pixel.backend.utils.CourseRowMapper;
+import lms.pixel.backend.rowMapperStrategy.CourseMapper;
+import lms.pixel.backend.rowMapperStrategy.RowMapperStrategy;
 
 import java.util.List;
 
@@ -22,8 +22,23 @@ public class CourseRepository {
     }
 
     public List<Course> getAllCourses() {
-        RowMapper<Course> rowMapper = new CourseRowMapper();
-        return template.query("SELECT * FROM course", rowMapper);
+        RowMapperStrategy<Course> rowMapper = new CourseMapper();
+        String sql = """
+            SELECT 
+                p.courseid, 
+                p.title, 
+                p.description, 
+                p.startdate, 
+                p.enddate, 
+                p.status, 
+                p.userid,
+                s.name AS teacher
+            FROM 
+                course p
+            JOIN 
+                user_ s ON p.userid = s.userid
+        """;
+        return template.query(sql, rowMapper);
     }
 
     public void createCourse(Course Course, int creatorUserId) {
@@ -57,7 +72,7 @@ public class CourseRepository {
 
 
     public Course getByCourseId(int Courseid) {
-        RowMapper<Course> rowMapper = new CourseRowMapper();
+        RowMapperStrategy<Course> rowMapper = new CourseMapper();
         String sql = """
             SELECT 
                 p.courseid, 
@@ -67,7 +82,7 @@ public class CourseRepository {
                 p.enddate, 
                 p.status, 
                 p.userid,
-                s.name AS supervisor
+                s.name AS teacher
             FROM 
                 course p
             JOIN 
@@ -84,7 +99,7 @@ public class CourseRepository {
 
 
     public List<Course> getCourseByEngagement(int userid){
-        RowMapper<Course> rowMapper = new CourseRowMapper();
+        RowMapperStrategy<Course> rowMapper = new CourseMapper();
         String sql = """
             SELECT
                 p.courseid,
@@ -94,7 +109,7 @@ public class CourseRepository {
                 p.enddate,
                 p.status,
                 p.userid,
-                s.name AS supervisor
+                s.name AS teacher
             FROM
                 course p
             JOIN
@@ -109,7 +124,7 @@ public class CourseRepository {
     }
 
     public List<Course> getCourseBySupervising(int userid){
-        RowMapper<Course> rowMapper = new CourseRowMapper();
+        RowMapperStrategy<Course> rowMapper = new CourseMapper();
         String sql = """
             SELECT 
                 p.courseid, 
@@ -119,7 +134,7 @@ public class CourseRepository {
                 p.enddate, 
                 p.status, 
                 p.userid,
-                s.name AS supervisor
+                s.name AS teacher
             FROM 
                 course p
             JOIN 

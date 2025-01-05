@@ -110,3 +110,23 @@ BEGIN
     UPDATE user_ SET isdeleted = TRUE WHERE userid = u_userid;
 END;
 $$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE PROCEDURE sync_serial_sequence(table_name TEXT, column_name TEXT)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    sequence_name TEXT;
+    max_value BIGINT;
+BEGIN
+    SELECT pg_get_serial_sequence(table_name, column_name) INTO sequence_name;
+
+    IF sequence_name IS NULL THEN
+        RAISE EXCEPTION 'No sequence found for table "%" and column "%"', table_name, column_name;
+    END IF;
+
+    EXECUTE FORMAT('SELECT COALESCE(MAX(%I), 0) FROM %I', column_name, table_name) INTO max_value;
+    EXECUTE FORMAT('SELECT SETVAL(%L, %s)', sequence_name, max_value + 1);
+    RAISE NOTICE 'Sequence "%" synchronized to %', sequence_name, max_value + 1;
+END;
+$$;

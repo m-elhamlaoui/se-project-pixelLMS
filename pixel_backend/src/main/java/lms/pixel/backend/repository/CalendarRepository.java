@@ -1,13 +1,13 @@
 package lms.pixel.backend.repository;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
 import lms.pixel.backend.model.Calendar;
-import lms.pixel.backend.utils.CalendarRowMapper;
+import lms.pixel.backend.rowMapperStrategy.CalendarMapper;
+import lms.pixel.backend.rowMapperStrategy.RowMapperStrategy;
 
 import java.util.List;
 
@@ -36,7 +36,7 @@ public class CalendarRepository {
                 WHERE u.userid = ?;
         """;
 
-        RowMapper<Calendar> rowMapper = new CalendarRowMapper();
+        RowMapperStrategy<Calendar> rowMapper = new CalendarMapper();
         List<Calendar> events = template.query(sql, rowMapper, userid);
         if (events.isEmpty()) {
             return null;
@@ -72,7 +72,7 @@ public class CalendarRepository {
                 WHERE c.eventnumber = ?;
         """;
 
-        RowMapper<Calendar> rowMapper = new CalendarRowMapper();
+        RowMapperStrategy<Calendar> rowMapper = new CalendarMapper();
         Calendar event = template.queryForObject(sql, rowMapper, eventid);
         return event;
     }

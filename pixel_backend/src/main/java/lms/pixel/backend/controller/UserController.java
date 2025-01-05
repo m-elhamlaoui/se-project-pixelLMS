@@ -3,11 +3,11 @@ package lms.pixel.backend.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import lms.pixel.backend.Exceptions.NotFoundException;
-import lms.pixel.backend.Exceptions.OperationNotAuthorizedException;
+import lms.pixel.backend.exceptions.NotFoundException;
+import lms.pixel.backend.exceptions.OperationNotAuthorizedException;
 import lms.pixel.backend.model.User;
-import lms.pixel.backend.repository.IUserRepository;
-import lms.pixel.backend.utils.PermissionChecker;
+import lms.pixel.backend.repository.UserRepository;
+import lms.pixel.backend.security.PermissionChecker;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,24 +26,26 @@ import java.util.List;
 @RequestMapping("api/user")
 public class UserController {
 
-    private final IUserRepository userRepository;
+    private final UserRepository userRepository;
     private final PermissionChecker permissionChecker;
 
-    public UserController(IUserRepository userRepository, PermissionChecker permissionChecker) {
+    public UserController(UserRepository userRepository, PermissionChecker permissionChecker) {
         this.userRepository = userRepository;
         this.permissionChecker = permissionChecker;
     }
 
     @GetMapping 
-    public List<User> getAllUsers() {
+    public List<User> getAll() {
         return userRepository.getAllUsers();
     }
 
     @PostMapping  
-    public ResponseEntity<String> createUser(@RequestBody User user, @RequestHeader("Authorization") String token, @RequestHeader("Password") String password) throws OperationNotAuthorizedException {
-        int userid = permissionChecker.getUseridByToken(token);;
+    public ResponseEntity<String> create(@RequestBody User user, @RequestHeader("Authorization") String token, @RequestHeader("Password") String password) throws OperationNotAuthorizedException {
         
-        if (!permissionChecker.canCreateUsers(userid, user.getRole())) {
+        int userid = permissionChecker.getUseridByToken(token);
+        int roleid = User.ConvertRole(user.getRole()); 
+        boolean isAuthorized = permissionChecker.checkPermission("canCreateUsers", userid, roleid);
+        if (!isAuthorized) {
             throw new OperationNotAuthorizedException("You do not have permission to create this user", userid);
         }
 
@@ -52,10 +54,12 @@ public class UserController {
     }
 
     @PutMapping("/{userid}")
-    public ResponseEntity<String> updateUser(@PathVariable int userid, @RequestBody User user, @RequestHeader("Authorization") String token, @RequestHeader("Password") String password) throws OperationNotAuthorizedException {
+    public ResponseEntity<String> update(@PathVariable int userid, @RequestBody User user, @RequestHeader("Authorization") String token, @RequestHeader("Password") String password) throws OperationNotAuthorizedException {
+        
         int loggedUserid = permissionChecker.getUseridByToken(token);
-
-        if (!permissionChecker.canCreateUsers(loggedUserid, user.getRole())) {
+        int roleid = User.ConvertRole(user.getRole());
+        boolean isAuthorized = permissionChecker.checkPermission("canCreateUsers", loggedUserid, roleid);
+        if (!isAuthorized) {
             throw new OperationNotAuthorizedException("You do not have permission to update this user", loggedUserid);
         }
 
@@ -63,17 +67,8 @@ public class UserController {
         return new ResponseEntity<>("User updated", HttpStatus.OK);
     }
 
-    @GetMapping("getbyemail/{useremail}")
-    public User getbyemail(@PathVariable String useremail) throws NotFoundException {
-        User u = userRepository.getUserByEmail(useremail);
-        if (u == null) {
-            throw new NotFoundException();
-        }
-        return u;
-    }
-
     @GetMapping("/{userid}")
-    public User getUser(@PathVariable int userid) throws NotFoundException {
+    public User getById(@PathVariable int userid) throws NotFoundException {
         User u = userRepository.getByuserId(userid);
         if (u == null) {
             throw new NotFoundException();
@@ -101,5 +96,13 @@ public class UserController {
         List<User> users = userRepository.getUsersInTask(taskid);
         return users;
     }
-    
+
+    @GetMapping("getbyemail/{useremail}")
+    public User getbyemail(@PathVariable String useremail) throws NotFoundException {
+        User u = userRepository.getUserByEmail(useremail);
+        if (u == null) {
+            throw new NotFoundException();
+        }
+        return u;
+    }    
 }

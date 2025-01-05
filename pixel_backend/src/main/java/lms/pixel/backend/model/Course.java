@@ -15,7 +15,7 @@ public class Course {
     private LocalDate enddate;
     private String status;
     private int userid;
-    private String supervisor;
+    private String teacher;
 
     public int getCourseid() {
         return courseid;
@@ -73,11 +73,11 @@ public class Course {
         this.userid = userid;
     }
 
-    public String getSupervisor(){
-        return supervisor;
+    public String getTeacher(){
+        return teacher;
     }
 
-    public void setSupervisor(String name){
-        this.supervisor = name;
+    public void setTeacher(String name){
+        this.teacher = name;
     }
 }

@@ -1,4 +1,4 @@
-package lms.pixel.backend.Exceptions;
+package lms.pixel.backend.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(OperationNotAuthorizedException.class)
-    public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(
+    public ResponseEntity<Map<String, Object>> handleResourceNotAuthorized(
         OperationNotAuthorizedException ex, WebRequest request) {
         
         Map<String, Object> response = new HashMap<>();
@@ -47,3 +47,5 @@ public class GlobalExceptionHandler {
     }
 
 }
+
+

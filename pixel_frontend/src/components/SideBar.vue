@@ -21,7 +21,7 @@
           class="specialbackground headline"
           v-if="!isMobile && courseselected"
       >
-        <strong>Projet:</strong> {{ tr_courseName }}
+        <strong>Course:</strong> {{ tr_courseName }}
       </v-list-item>
 
       <v-divider v-if="!isMobile && !courseselected"></v-divider>
