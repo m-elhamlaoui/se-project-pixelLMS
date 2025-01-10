@@ -1,7 +1,7 @@
-# Pixel LMS Documentation
+# PixelLMS Documentation
 
 ## Overview
-Pixel LMS is a dynamic web-based platform designed to streamline the process of managing courses, assignments, events, and facilitating discussions for educators and students. The system is built with ease of use and flexibility in mind to cater to various academic needs. The platform allows teachers to create and manage courses and assignments, while students can track assignments and participate in academic discussions. The system provides a comprehensive set of features aimed at improving the overall learning experience.
+PixelLMS is a dynamic web-based platform designed to streamline the process of managing courses, assignments, events, and facilitating discussions for educators and students. The system is built with ease of use and flexibility in mind to cater to various academic needs. The platform allows teachers to create and manage courses and assignments, while students can track assignments and participate in academic discussions. The system provides a comprehensive set of features aimed at improving the overall learning experience.
 
 ## Features
 
@@ -11,7 +11,7 @@ Pixel LMS is a dynamic web-based platform designed to streamline the process of 
 
 ### 2. Assignment Management
 - **Assigning Assignments**: Teachers can assign assignments to students, specifying deadlines and other relevant details.
-- **Tracking Assignments**: Teachers can monitor the progress of assignments, check submission statuses, and grade them efficiently.
+- **Tracking Assignments**: Teachers can monitor the progre==ss of assignments, check submission statuses, and grade them efficiently.
 - **Student Participation**: Students can view and submit assignments, track their progress, and receive feedback.
 
 ### 3. Login and User Management
