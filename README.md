@@ -1,5 +1,18 @@
 # PixelLMS Documentation
 
+# Table of Contents
+
+1. Overview
+2. Features
+3. Technical Details
+4. Design Patterns
+5. Transactions and Procedures
+6. Testing
+7. Agile Scrum Methodology
+8. Notifications and Quizzes
+9. Installation and Deployment
+10. Conclusion
+
 ## Overview
 PixelLMS is a dynamic web-based platform designed to streamline the process of managing courses, assignments, events, and facilitating discussions for educators and students. The system is built with ease of use and flexibility in mind to cater to various academic needs. The platform allows teachers to create and manage courses and assignments, while students can track assignments and participate in academic discussions. The system provides a comprehensive set of features aimed at improving the overall learning experience.
 
