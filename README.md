@@ -23,7 +23,7 @@ Pixel LMS is a dynamic web-based platform designed to streamline the process of 
 - **Calendar Integration**: The platform integrates an event calendar, allowing users to view upcoming events in a structured format.
 
 ### 5. Discussion Management
-- **Create Specific Discussions**: Teachers can create and manage discussions related to course content, assignments, and other academic topics. Students can create and participate in discussions, asking questions and sharing ideas.
+- **Create Specific Discussions**: Teachers can create and manage discussions related to course content, assignments, and other academic topics. Students can participate in these discussions, asking questions and sharing ideas, but they cannot create new discussions.
 
 ### 6. Student Registration
 - **Teacher Account Creation**: Teachers can create student accounts, ensuring that students have access to the LMS to track their assignments and courses.
@@ -101,6 +101,31 @@ At the end of each sprint, the team would review the completed tasks, re-priorit
 
 ## Notifications and Quizzes
 Due to time constraints, notifications and quizzes were not fully implemented. However, these features are planned for future development to enhance the platform’s interactivity and engagement.
+
+## Installation and Deployment
+
+1. **Run SQL Scripts**: Execute the SQL scripts to create and configure the database.
+   ```sh
+   psql -U postgres -d pixel_db -f "dir\sql\database-DDL.sql" > dir\logs\DDL.log
+   psql -U postgres -d pixel_db -f "dir\sql\database-storedproc.sql" > dir\logs\Procedures.log
+   psql -U postgres -d pixel_db -f "dir\sql\database-transactions.sql" > dir\logs\Transactions.log
+   ```
+
+2. **Install Dependencies (Front END):**
+    ```sh
+    npm install
+    ```
+3. **Build the Project (Front END):**
+    ```sh
+    npm run build
+    ```
+4. **Integrate with Backend:** Move the generated files to the backend directory.
+5. **Clean and Install Backend:**
+    ```sh
+    ./mvnw clean install
+    ```
+
+6. **Deploy:** Deploy the application in a Tomcat container.
 
 ## Conclusion
 Pixel LMS is a robust and flexible learning management system that supports a variety of academic activities such as course management, assignment tracking, event scheduling, and discussions. The system was developed using modern technologies such as Spring Boot and Vue.js, employing industry-standard design patterns like Factory, Strategy, and Command Patterns to enhance flexibility, scalability, and maintainability. The project followed Agile Scrum methodology using Jira, ensuring efficient task management and collaboration among team members.
