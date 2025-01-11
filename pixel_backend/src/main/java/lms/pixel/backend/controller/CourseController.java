@@ -45,7 +45,7 @@ public class CourseController {
         if (course == null) {
             throw new NotFoundException();
         }
-        return courseRepository.getByCourseId(Courseid);
+        return course;
     }
     
     @PostMapping
