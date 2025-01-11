@@ -97,7 +97,6 @@ The project follows Test-Driven Development (TDD) principles. Tests are written 
 
 #### Types of Tests:
 - **Unit Tests**: Test individual components and functions in isolation to ensure they perform as expected.
-- **Feature Tests**: Ensure that the features of the system (e.g., course creation, assignment tracking) work as intended.
 - **Integration Tests**: Test the interaction between different components of the system to ensure they work together seamlessly.
 
 ### Robustness Testing:
