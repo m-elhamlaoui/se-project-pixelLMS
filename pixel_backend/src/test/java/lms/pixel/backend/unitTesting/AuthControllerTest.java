@@ -1,4 +1,4 @@
-package lms.pixel.backend.unitTest;
+package lms.pixel.backend.unitTesting;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
